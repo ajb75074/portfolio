@@ -105,10 +105,12 @@ h1, h2, h3, h4, h5, h6 {
 
 .about-section {
   min-height: 100vh;
+  min-height: 100svh;
   display: flex;
   align-items: center;
   justify-content: center;
   padding: 6rem 1.5rem 2rem;
+  overflow: visible;
 }
 
 .about-content {
@@ -637,12 +639,27 @@ h1, h2, h3, h4, h5, h6 {
   }
 
   .about-section {
+    min-height: auto;
     padding-top: 5rem;
+    padding-bottom: 3rem;
   }
 
   .about-photo {
-    width: 220px;
-    height: 260px;
+    width: 200px;
+    height: 240px;
+  }
+
+  .about-title {
+    font-size: 2.2rem;
+  }
+
+  .about-description {
+    font-size: 1rem;
+  }
+
+  .skills-marquee {
+    width: 100vw;
+    margin-left: calc(-1 * (100vw - 100%) / 2);
   }
 
   .portfolio-card {
