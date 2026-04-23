@@ -447,6 +447,24 @@ h1, h2, h3, h4, h5, h6 {
   font-size: 0.95rem;
 }
 
+.nmi-description {
+  max-width: 800px;
+  margin: 2rem auto 0;
+  padding: 0 1.5rem;
+  color: var(--muted);
+  font-size: 1.05rem;
+  line-height: 1.8;
+}
+
+.nmi-description p {
+  margin-bottom: 1.5rem;
+}
+
+.nmi-description strong {
+  color: var(--text);
+  font-weight: 600;
+}
+
 .anchor-section {
   max-width: 1200px;
   margin: 0 auto;
