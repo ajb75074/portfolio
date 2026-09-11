@@ -1409,14 +1409,14 @@
       entries.forEach(function (e) {
         if (e.isIntersecting) { e.target.classList.add('is-visible'); io.unobserve(e.target); }
       });
-    }, { threshold: 0.12 });
+    }, { threshold: 0.01 });
     revealEls.forEach(function (el) { io.observe(el); });
 
     var io2 = new IntersectionObserver(function (entries) {
       entries.forEach(function (e) {
         if (e.isIntersecting) { e.target.classList.add('is-visible'); io2.unobserve(e.target); }
       });
-    }, { threshold: 0.3 });
+    }, { threshold: 0.05 });
     lineEls.forEach(function (el) { io2.observe(el); });
   } else {
     revealEls.forEach(function (el) { el.classList.add('is-visible'); });
