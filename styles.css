@@ -561,6 +561,96 @@ h1, h2, h3, h4, h5, h6 {
   transform: translateX(4px);
 }
 
+/* ── Latest Project Spotlight ── */
+
+.spotlight-section {
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 2rem 1.5rem 0;
+}
+
+.spotlight-card {
+  display: block;
+  background: var(--surface);
+  border: 1px solid var(--line);
+  border-radius: var(--radius);
+  overflow: hidden;
+  text-decoration: none;
+  color: inherit;
+  transition: transform 0.35s cubic-bezier(0.2, 0.8, 0.2, 1),
+    box-shadow 0.35s cubic-bezier(0.2, 0.8, 0.2, 1),
+    border-color 0.35s ease,
+    background-color 0.35s ease;
+}
+
+.spotlight-card:hover,
+.spotlight-card:focus-within {
+  transform: translateY(-6px);
+  box-shadow: var(--shadow);
+  border-color: var(--accent-light);
+  background: var(--surface-hover);
+}
+
+.spotlight-badge {
+  display: inline-block;
+  font-size: 0.75rem;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--accent-deep);
+  background: rgba(221, 45, 74, 0.08);
+  padding: 0.4rem 0.85rem;
+  border-radius: 999px;
+  width: fit-content;
+}
+
+.spotlight-body {
+  padding: 2rem;
+  display: flex;
+  flex-direction: column;
+}
+
+.spotlight-body h3 {
+  margin: 0.3rem 0 0.4rem;
+  font-size: 1.7rem;
+  line-height: 1.2;
+}
+
+.spotlight-tagline {
+  margin: 0 0 0.9rem;
+  font-style: italic;
+  color: var(--accent-deep);
+  font-size: 1rem;
+}
+
+.spotlight-body > p:not(.spotlight-tagline) {
+  margin: 0 0 1.2rem;
+  color: var(--muted);
+  font-size: 0.98rem;
+  line-height: 1.65;
+}
+
+.spotlight-stack {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+  margin-bottom: 1.2rem;
+}
+
+.spotlight-stack span {
+  font-size: 0.78rem;
+  font-weight: 500;
+  color: var(--text);
+  background: rgba(0, 0, 0, 0.04);
+  border: 1px solid var(--line);
+  padding: 0.3rem 0.7rem;
+  border-radius: 999px;
+}
+
+.spotlight-body .card-meta {
+  margin-top: auto;
+}
+
 /* ── About Detail Section ── */
 
 .about-detail {
@@ -690,6 +780,10 @@ h1, h2, h3, h4, h5, h6 {
 
   .project-grid {
     grid-template-columns: 1fr;
+  }
+
+  .spotlight-body {
+    padding: 1.5rem;
   }
 
   .ux-page {
