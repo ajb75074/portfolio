@@ -2,18 +2,52 @@
 <html lang="en">
   <head>
     <meta charset="UTF-8" />
+    <script>
+      // Strip any URL fragment before the browser can act on it, so a
+      // shared #section link never jumps past the intro on first load.
+      if (location.hash) history.replaceState(null, '', location.pathname + location.search);
+    </script>
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Avanie Baptiste — UX Portfolio</title>
+    <title>Avanie Baptiste — Portfolio</title>
     <link rel="preconnect" href="https://fonts.googleapis.com" />
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
     <link
-      href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=Love+Ya+Like+A+Sister&display=swap"
+      href="https://fonts.googleapis.com/css2?family=Fredoka:wght@600;700&family=Inter:wght@300;400;500;600;700;800&family=Love+Ya+Like+A+Sister&display=swap"
       rel="stylesheet"
     />
     <link rel="stylesheet" href="styles.css?v=3" />
-    <link rel="icon" type="image/png" href="assets/laptop-favicon.png" />
+    <link rel="stylesheet" href="air-intro.css" />
+    <script type="importmap">{"imports":{"three":"./vendor/three/three.module.js","three/addons/":"./vendor/three/addons/"}}</script>
+    <link rel="icon" type="image/png" href="assets/laptop.png" />
   </head>
-  <body>
+  <body class="air-home">
+    <div class="air-sky" aria-hidden="true">
+      <div class="air-moon"></div>
+      <span class="air-star" style="--x:1%;--y:2%;--size:2px;--dur:2.5s;--delay:2.79s;"></span>
+      <span class="air-star" style="--x:16.7%;--y:4.7%;--size:3px;--dur:2.5s;--delay:0.29s;"></span>
+      <span class="air-star" style="--x:38.8%;--y:2%;--size:4px;--dur:2.5s;--delay:2.81s;"></span>
+      <span class="air-star" style="--x:54.6%;--y:2%;--size:2px;--dur:3.4s;--delay:1.99s;"></span>
+      <span class="air-star" style="--x:72.7%;--y:2%;--size:3px;--dur:3.0s;--delay:1.43s;"></span>
+      <span class="air-star" style="--x:96.4%;--y:4.6%;--size:3px;--dur:2.5s;--delay:1.98s;"></span>
+      <span class="air-star" style="--x:3.4%;--y:22.3%;--size:2px;--dur:3.4s;--delay:0.2s;"></span>
+      <span class="air-star" style="--x:17.9%;--y:24.8%;--size:4px;--dur:3.0s;--delay:1.58s;"></span>
+      <span class="air-star" style="--x:43.8%;--y:22.2%;--size:3px;--dur:2.8s;--delay:2.38s;"></span>
+      <span class="air-star" style="--x:55.8%;--y:23.9%;--size:4px;--dur:3.0s;--delay:2.48s;"></span>
+      <span class="air-star" style="--x:75.1%;--y:27.2%;--size:2px;--dur:3.4s;--delay:1.42s;"></span>
+      <span class="air-star" style="--x:97%;--y:20.5%;--size:4px;--dur:3.2s;--delay:0.13s;"></span>
+      <span class="air-star" style="--x:3.7%;--y:44.8%;--size:3px;--dur:3.0s;--delay:2.36s;"></span>
+      <span class="air-star" style="--x:21.7%;--y:43.3%;--size:4px;--dur:2.5s;--delay:2.86s;"></span>
+      <span class="air-star" style="--x:44.0%;--y:42.5%;--size:2px;--dur:2.5s;--delay:2.49s;"></span>
+      <span class="air-star" style="--x:56.5%;--y:43.3%;--size:4px;--dur:3.0s;--delay:2.44s;"></span>
+      <span class="air-star" style="--x:81.1%;--y:41.4%;--size:4px;--dur:3.0s;--delay:0.57s;"></span>
+      <span class="air-star" style="--x:92.2%;--y:39.1%;--size:3px;--dur:2.8s;--delay:2.51s;"></span>
+      <span class="air-star" style="--x:1%;--y:64%;--size:4px;--dur:2.5s;--delay:0.57s;"></span>
+      <span class="air-star" style="--x:19.8%;--y:60.2%;--size:3px;--dur:3.2s;--delay:2.94s;"></span>
+      <span class="air-star" style="--x:37.4%;--y:61.3%;--size:3px;--dur:3.6s;--delay:3.01s;"></span>
+      <span class="air-star" style="--x:63.0%;--y:59.2%;--size:3px;--dur:2.8s;--delay:0.79s;"></span>
+      <span class="air-star" style="--x:74.5%;--y:61.9%;--size:3px;--dur:3.0s;--delay:0.96s;"></span>
+      <span class="air-star" style="--x:92.5%;--y:62.3%;--size:3px;--dur:2.8s;--delay:2.35s;"></span>
+    </div>
     <header class="site-header" role="banner">
       <nav class="nav" aria-label="Main Navigation">
         <a href="index.html" class="brand" aria-label="Portfolio Home">
@@ -29,208 +63,439 @@
     </header>
 
     <main>
-      <!-- ── Hero / Intro ── -->
-      <section id="home" class="about-section" aria-label="About Section">
-        <div class="about-content">
-          <div class="about-photo">
-            <img src="assets/avanie.gif" alt="Avanie Baptiste" class="photo-img" />
+      <section id="home" class="air-intro" aria-label="Welcome aboard Avanie Air">
+        <div class="air-stage" aria-hidden="true" hidden></div>
+        <p class="air-label" hidden>
+          <span class="air-label-brand">Avanie Air</span>
+          <span class="air-label-sep" aria-hidden="true">/</span>
+          <span class="air-label-sub">Welcome aboard</span>
+        </p>
+        <div class="air-controls" hidden>
+          <button class="air-button t-shimmer" data-text="Open window" data-open>Open window</button>
+          <p class="air-status" role="status" aria-live="polite"></p>
+        </div>
+        <button class="air-link air-skip" data-skip hidden>Skip intro</button>
+        <article class="air-ticket" aria-label="Avanie Air boarding pass">
+          <div class="air-ticket-main">
+            <div class="air-ticket-heading">
+              <div><h1>AVANIE AIR</h1><p class="air-boarding-label">NOW BOARDING</p></div>
+              <p class="air-ticket-motto">RESEARCH · DESIGN · BUILD</p>
+            </div>
+            <dl class="air-ticket-person">
+              <div><dt>Passenger</dt><dd>Avanie Baptiste</dd></div>
+              <div><dt>Role</dt><dd>UX / Product Designer &amp; Developer</dd></div>
+            </dl>
+            <dl class="air-ticket-details">
+              <div><dt>Seat</dt><dd>01A</dd></div>
+              <div><dt>Gate</dt><dd>B42</dd></div>
+              <div><dt>Destination</dt><dd>PROJECTS</dd></div>
+            </dl>
+            <button class="air-link air-ticket-replay" data-replay>Replay window intro</button>
           </div>
-          <div class="about-text">
-            <h1 class="about-title">hi, i'm avanie!</h1>
-            <p class="about-description">
-              Computer Science student at the University of Georgia blending engineering,
-              user experience design, and human-centered thinking to create meaningful digital experiences.
-            </p>
-            <div class="skills-marquee" aria-label="Skills">
-              <div class="skills-track">
-                <span>Frontend Development</span>
-                <span>UX &amp; UI Design</span>
-                <span>Figma</span>
-                <span>Wireframing &amp; Prototyping</span>
-                <span>User Research &amp; Usability Testing</span>
-                <span>Mobile App Development</span>
-                <span>Editing</span>
-                <span>Frontend Development</span>
-                <span>UX &amp; UI Design</span>
-                <span>Figma</span>
-                <span>Wireframing &amp; Prototyping</span>
-                <span>User Research &amp; Usability Testing</span>
-                <span>Mobile App Development</span>
-                <span>Editing</span>
+          <aside class="air-ticket-stub" aria-hidden="true">
+            <svg class="air-perforation" viewBox="0 0 32 600" preserveAspectRatio="none" focusable="false">
+              <path d="M16 0 C-6 65 38 110 16 180 S-6 250 16 310 S38 380 16 445 S-6 530 16 600" />
+            </svg>
+            <p class="air-stub-brand">AVANIE AIR</p>
+            <p class="air-stub-caption">LET CREATIVITY FLY</p>
+            <div class="air-stub-window"><div class="air-stub-view"><span class="air-stub-wing"></span></div></div>
+            <div class="air-barcode"></div>
+            <p class="air-stub-caption">PORTFOLIO / 2026</p>
+          </aside>
+        </article>
+      </section>
+      <!-- ── Latest Project Postcard ── -->
+      <section class="postcard-section" aria-label="Latest Project">
+        <div class="postcard-lead">
+          <h2>Latest Trip</h2>
+        </div>
+        <div class="postcard-frame">
+          <div class="postcard-inner">
+            <div class="postcard-window-col">
+              <div class="postcard-window">
+                <div class="postcard-window-view">
+                  <span class="postcard-cloud postcard-cloud--1" aria-hidden="true"></span>
+                  <span class="postcard-cloud postcard-cloud--2" aria-hidden="true"></span>
+                  <span class="postcard-cloud postcard-cloud--3" aria-hidden="true"></span>
+
+                  <svg class="postcard-flightpath" viewBox="0 0 260 180" preserveAspectRatio="none" focusable="false" aria-hidden="true">
+                    <path d="M8 8 C 90 20, 150 60, 190 140" fill="none" />
+                  </svg>
+
+                  <span class="postcard-pin-ping" aria-hidden="true"></span>
+                  <a class="postcard-pin-link" href="https://chromewebstore.google.com/detail/wishlist/dadccombadaaabibddhlinkaibmgejdl?authuser=0&amp;hl=en" target="_blank" rel="noopener noreferrer" aria-label="Try Wishlist — opens the Chrome extension in a new tab">
+                    <svg class="postcard-pin" viewBox="0 0 32 40" aria-hidden="true">
+                      <path d="M16 0C7.163 0 0 7.163 0 16c0 11.5 16 24 16 24s16-12.5 16-24C32 7.163 24.837 0 16 0z" fill="#d9556b" />
+                      <circle cx="16" cy="15.5" r="10.2" fill="none" stroke="#b83f54" stroke-width="1" opacity="0.35" />
+                      <path d="M16 20.6s-6.1-3.9-6.1-8.4c0-2.4 1.9-4.3 4.2-4.3 1 0 1.9.5 1.9 1.5 0-1 .9-1.5 1.9-1.5 2.3 0 4.2 1.9 4.2 4.3 0 4.5-6.1 8.4-6.1 8.4z" fill="#fbf4e6" />
+                    </svg>
+                  </a>
+                  <span class="postcard-pin-shadow" aria-hidden="true"></span>
+                  <span class="postcard-pin-label" aria-hidden="true">Wishlist</span>
+
+                  <div class="postcard-clickme" aria-hidden="true">
+                    <span class="postcard-clickme-text">click to visit</span>
+                    <svg class="postcard-clickme-arrow" viewBox="0 0 60 50" fill="none">
+                      <path d="M54 4 C 32 0, 10 10, 15 24 C 19 36, 3 33, 4 42" stroke="#4a3326" stroke-width="1.6" stroke-linecap="round" stroke-dasharray="1 6" />
+                      <path d="M4 42 L11 43 M4 42 L3 35" stroke="#4a3326" stroke-width="1.6" stroke-linecap="round" />
+                    </svg>
+                  </div>
+
+                  <svg class="postcard-ground" viewBox="0 0 370 90" preserveAspectRatio="none" focusable="false" aria-hidden="true">
+                    <path d="M0 40 Q 90 10 185 34 T 370 20 L 370 90 L 0 90 Z" />
+                  </svg>
+
+                  <span class="postcard-window-vignette" aria-hidden="true"></span>
+                </div>
               </div>
             </div>
-          </div>
-        </div>
-      </section>
 
-      <!-- ── Latest Project Spotlight ── -->
-      <section class="spotlight-section" aria-label="Latest Project">
-        <div class="spotlight-card">
-          <div class="spotlight-body">
-            <span class="spotlight-badge">Latest Project</span>
-            <h3>Wishlist</h3>
-            <p class="spotlight-tagline">"your closet, before it's your closet."</p>
-            <p>
-              A fashion-tech product that brings the pieces you save across the internet into one
-              place, then helps you organize, style, and visualize outfits before you buy —
-              powered by a Chrome extension, an interactive styling canvas, and a full-stack
-              web app.
-            </p>
-            <div class="spotlight-stack">
-              <span>React</span>
-              <span>Supabase / PostgreSQL</span>
-              <span>Chrome MV3</span>
-              <span>Gemini</span>
-            </div>
-            <div class="cs-chooser">
-              <span class="cs-chooser__label">Explore the case study</span>
-              <div class="cs-chooser__options">
-                <a class="cs-chooser__option" href="wishlist-product-design.html">
-                  <span class="cs-chooser__title">Product Design / UX <span class="cs-chooser__arrow">→</span></span>
-                  <span class="cs-chooser__desc">Product thinking · IA · Interaction · Experience</span>
+            <div class="postcard-message">
+              <svg class="postcard-stamp" viewBox="0 0 100 120" aria-hidden="true">
+                <defs>
+                  <mask id="postcard-stamp-perf" maskUnits="userSpaceOnUse">
+                    <rect x="0" y="0" width="100" height="120" fill="#fff" />
+                    <g fill="#000"><circle cx="0" cy="0" r="4.2"/><circle cx="10" cy="0" r="4.2"/><circle cx="20" cy="0" r="4.2"/><circle cx="30" cy="0" r="4.2"/><circle cx="40" cy="0" r="4.2"/><circle cx="50" cy="0" r="4.2"/><circle cx="60" cy="0" r="4.2"/><circle cx="70" cy="0" r="4.2"/><circle cx="80" cy="0" r="4.2"/><circle cx="90" cy="0" r="4.2"/><circle cx="100" cy="0" r="4.2"/><circle cx="0" cy="120" r="4.2"/><circle cx="10" cy="120" r="4.2"/><circle cx="20" cy="120" r="4.2"/><circle cx="30" cy="120" r="4.2"/><circle cx="40" cy="120" r="4.2"/><circle cx="50" cy="120" r="4.2"/><circle cx="60" cy="120" r="4.2"/><circle cx="70" cy="120" r="4.2"/><circle cx="80" cy="120" r="4.2"/><circle cx="90" cy="120" r="4.2"/><circle cx="100" cy="120" r="4.2"/><circle cx="0" cy="10" r="4.2"/><circle cx="0" cy="20" r="4.2"/><circle cx="0" cy="30" r="4.2"/><circle cx="0" cy="40" r="4.2"/><circle cx="0" cy="50" r="4.2"/><circle cx="0" cy="60" r="4.2"/><circle cx="0" cy="70" r="4.2"/><circle cx="0" cy="80" r="4.2"/><circle cx="0" cy="90" r="4.2"/><circle cx="0" cy="100" r="4.2"/><circle cx="0" cy="110" r="4.2"/><circle cx="100" cy="10" r="4.2"/><circle cx="100" cy="20" r="4.2"/><circle cx="100" cy="30" r="4.2"/><circle cx="100" cy="40" r="4.2"/><circle cx="100" cy="50" r="4.2"/><circle cx="100" cy="60" r="4.2"/><circle cx="100" cy="70" r="4.2"/><circle cx="100" cy="80" r="4.2"/><circle cx="100" cy="90" r="4.2"/><circle cx="100" cy="100" r="4.2"/><circle cx="100" cy="110" r="4.2"/></g>
+                  </mask>
+                </defs>
+                <rect x="0" y="0" width="100" height="120" fill="#fbfaf6" mask="url(#postcard-stamp-perf)" />
+
+                <text x="10" y="21" font-family="Inter, -apple-system, sans-serif" font-size="7.5" font-weight="700" letter-spacing="0.6" fill="#a39c8f">USA</text>
+
+                <g transform="translate(15 30)">
+                  <path d="M35 62 C10 42, 2 26, 2 15 C2 3, 14 -4, 26 3 C31 6, 35 11, 35 16 C35 11, 39 6, 44 3 C56 -4, 68 3, 68 15 C68 26, 60 42, 35 62 Z" fill="#d9556b" />
+                  <path d="M35 62 C10 42, 2 26, 2 15 C2 3, 14 -4, 26 3" fill="none" stroke="#b83f54" stroke-width="1" opacity="0.4" />
+                  <ellipse cx="20" cy="14" rx="6" ry="4" fill="#f0879a" opacity="0.55" />
+                </g>
+
+                <text x="10" y="112" font-family="Consolas, 'Liberation Mono', monospace" font-size="7" fill="#a39c8f">2026</text>
+                <text x="92" y="112" text-anchor="end" font-family="Inter, -apple-system, sans-serif" font-size="8" font-weight="700" letter-spacing="0.5" fill="#d9556b">WISHLIST</text>
+              </svg>
+
+              <p class="postcard-label">Post Card</p>
+
+              <span class="postcard-badge">Featured Project</span>
+              <h3 class="postcard-title">Wishlist</h3>
+              <p class="postcard-quote">“your closet, before it’s your closet.”</p>
+              <p class="postcard-desc">
+                A fashion-tech product that brings the pieces you save across the internet into
+                one place, then helps you organize, style, and visualize outfits before you buy.
+                It runs on a Chrome extension, an interactive styling canvas, and a full-stack
+                web app.
+              </p>
+              <p class="postcard-stack">React · Supabase / PostgreSQL · Chrome MV3 · Gemini</p>
+
+              <div class="postcard-links">
+                <a class="postcard-link" href="wishlist-product-design.html">
+                  Product Design / UX
+                  <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><line x1="4" y1="12" x2="19" y2="12" /><polyline points="13 6 19 12 13 18" /></svg>
                 </a>
-                <a class="cs-chooser__option" href="wishlist-engineering.html">
-                  <span class="cs-chooser__title">Software Engineering <span class="cs-chooser__arrow">→</span></span>
-                  <span class="cs-chooser__desc">Frontend · Architecture · Data · AI systems</span>
+                <a class="postcard-link postcard-link--accent" href="wishlist-engineering.html">
+                  Software Engineering
+                  <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><line x1="4" y1="12" x2="19" y2="12" /><polyline points="13 6 19 12 13 18" /></svg>
                 </a>
+              </div>
+
+              <p class="postcard-signoff">— wish you were scrolling here</p>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- ── In-Flight Entertainment / Projects ── -->
+      <section id="projects" class="ife-section" aria-label="Featured Projects">
+        <div class="ife-lead">
+          <p class="ife-eyebrow">Take your seat</p>
+          <h2>Choose a project from today’s selection.</h2>
+        </div>
+
+        <div class="ife-cabin">
+          <div class="seat-screen" data-ife-screen>
+            <div class="seat-screen-frame">
+              <div class="seat-screen-speaker" aria-hidden="true"></div>
+              <span class="seat-led" aria-hidden="true"></span>
+
+              <div class="seat-glass">
+                <div class="seat-boot-glow" aria-hidden="true"></div>
+                <div class="seat-reflection" aria-hidden="true"></div>
+
+                <div class="ife-ui">
+                  <div class="ife-topbar">
+                    <span class="ife-brand">Avanie Air</span>
+                    <span class="ife-heading">In-Flight Entertainment</span>
+                    <div class="ife-status">
+                      <span class="ife-seat">Seat 01A</span>
+                      <div class="ife-progress" aria-hidden="true"><span data-ife-progress></span></div>
+                    </div>
+                  </div>
+
+                  <div class="ife-statusline" aria-hidden="true">
+                    <span class="ife-status-item"><i class="ife-dot"></i>Wi-Fi</span>
+                    <span class="ife-status-item">Brightness ●●●○</span>
+                    <span class="ife-status-item" data-ife-clock>--:--</span>
+                  </div>
+
+                  <nav class="ife-tabs" aria-label="Screen navigation">
+                    <a href="#projects" class="ife-tab is-active" aria-current="page">Projects</a>
+                    <a href="#about" class="ife-tab">Passenger</a>
+                    <a href="assets/Baptiste_Avanie.pdf" class="ife-tab" target="_blank" rel="noopener noreferrer">Resume</a>
+                  </nav>
+
+                  <div class="ife-panel">
+                    <div class="ife-carousel-wrap">
+                      <button type="button" class="ife-arrow ife-arrow--prev" data-ife-prev aria-label="Previous project">
+                        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M15 18l-6-6 6-6"/></svg>
+                      </button>
+
+                      <ul class="ife-carousel" data-ife-track aria-label="Projects">
+                        <li class="ife-card-item">
+                          <button
+                            type="button"
+                            class="ife-card t-resize"
+                            data-ife-card
+                            data-color="blue"
+                            data-cat="UX Case Study"
+                            data-title="Seraph Secure"
+                            data-link-type="medium"
+                            data-role="UX Specialist"
+                            data-desc="A scam-prevention learning experience for older adults, created with Seraph Secure and UGA CARE."
+                            data-skills="UX Research, Accessibility, Front-End Dev, Figma"
+                            data-href="https://medium.com/@avaniebaptiste/nmi-capstone-seraph-secure-uga-care-49c06a1fc5aa"
+                            data-external="true"
+                          >
+                            <span class="ife-card-poster ife-poster--blue">
+                              <svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2 3 6v6c0 5.4 3.6 9.9 9 11 5.4-1.1 9-5.6 9-11V6l-9-4Z"/><path d="M8.5 12.2l2.4 2.4 4.4-4.9"/></svg>
+                            </span>
+                            <span class="ife-card-name">Seraph Secure</span>
+                          </button>
+                        </li>
+
+                        <li class="ife-card-item">
+                          <button
+                            type="button"
+                            class="ife-card t-resize"
+                            data-ife-card
+                            data-color="rose"
+                            data-cat="Product Design"
+                            data-title="Wishlist"
+                            data-link-type="case-study"
+                            data-role="Product Designer &amp; Developer"
+                            data-desc="A cross-store wishlist organizer with collections, outfit planning, and a Chrome extension."
+                            data-skills="Product Strategy, React, Chrome Extension, Supabase"
+                            data-href="wishlist-product-design.html"
+                          >
+                            <span class="ife-card-poster ife-poster--rose">
+                              <svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M12 20.2s-7-4.3-9.3-8.6C.9 8.1 2.8 4.4 6.4 4.4c1.9 0 3.4 1.1 4.2 2.4.9-1.3 2.4-2.4 4.3-2.4 3.6 0 5.5 3.7 3.7 7.2-2.3 4.3-9.3 8.6-9.3 8.6Z"/></svg>
+                            </span>
+                            <span class="ife-card-name">Wishlist</span>
+                          </button>
+                        </li>
+
+                        <li class="ife-card-item">
+                          <button
+                            type="button"
+                            class="ife-card t-resize"
+                            data-ife-card
+                            data-color="orange"
+                            data-cat="App Design &amp; Development"
+                            data-title="Feebee’s Kitchen"
+                            data-link-type="medium"
+                            data-role="Designer &amp; Developer"
+                            data-desc="A playful food-focused solo project exploring visual design and frontend development."
+                            data-skills="SwiftUI, Interaction Design, Visual Design, Motion"
+                            data-href="https://medium.com/@avaniebaptiste/native-app-final-project-feebees-kitchen-bbe62d80981c"
+                            data-external="true"
+                          >
+                            <span class="ife-card-poster ife-poster--orange">
+                              <svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M7 2.5v7.2a2.3 2.3 0 0 0 2.3 2.3V21"/><path d="M7 2.5v5.6M9.4 2.5v5.6"/><path d="M17 2.5c-1.7 0-3.1 2.3-3.1 6.4S15.3 15 17 15v6"/></svg>
+                            </span>
+                            <span class="ife-card-name">Feebee’s Kitchen</span>
+                          </button>
+                        </li>
+
+                        <li class="ife-card-item">
+                          <button
+                            type="button"
+                            class="ife-card t-resize"
+                            data-ife-card
+                            data-color="red"
+                            data-cat="Research &amp; Analytics"
+                            data-title="Beats by Dre"
+                            data-link-type="dashboard"
+                            data-role="Data Analyst &amp; Researcher"
+                            data-desc="Analyzed consumer journey and market data using Python, Excel, and generative AI to drive strategic product launch recommendations. Synthesized qualitative and quantitative insights into dashboards and presentations."
+                            data-skills="Python, Excel, Generative AI, Data Analysis"
+                            data-href="https://claude.ai/public/artifacts/0f5ca0fe-c5bb-4594-bbdc-a0bddd5ec88c"
+                            data-external="true"
+                          >
+                            <span class="ife-card-poster ife-poster--red">
+                              <svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M4 14.5v-2a8 8 0 0 1 16 0v2"/><rect x="2.5" y="13.5" width="4.5" height="7" rx="2.2"/><rect x="17" y="13.5" width="4.5" height="7" rx="2.2"/></svg>
+                            </span>
+                            <span class="ife-card-name">Beats by Dre</span>
+                          </button>
+                        </li>
+
+                        <li class="ife-card-item">
+                          <button
+                            type="button"
+                            class="ife-card t-resize"
+                            data-ife-card
+                            data-color="purple"
+                            data-cat="UX Design"
+                            data-title="Circadian Rhythm"
+                            data-link-type="slides"
+                            data-role="UX / Product Designer"
+                            data-desc="A 24-hour lighting schedule editor for creating and managing circadian experiences."
+                            data-skills="UX Design, Interaction Design, Figma, Prototyping"
+                            data-href="https://gamma.app/docs/Circadian-Cycle-Creation-4s1uoiizepvzr11"
+                            data-external="true"
+                          >
+                            <span class="ife-card-poster ife-poster--purple">
+                              <svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="3.6"/><path d="M12 3v2.4M12 18.6V21M4.2 4.2l1.7 1.7M18.1 18.1l1.7 1.7M2 12h2.4M19.6 12H22M4.2 19.8l1.7-1.7M18.1 5.9l1.7-1.7"/></svg>
+                            </span>
+                            <span class="ife-card-name">Circadian Rhythm</span>
+                          </button>
+                        </li>
+
+                        <li class="ife-card-item">
+                          <button
+                            type="button"
+                            class="ife-card t-resize"
+                            data-ife-card
+                            data-color="teal"
+                            data-cat="UX Research"
+                            data-title="RECYCLE.AI"
+                            data-link-type="case-study"
+                            data-role="Team Lead, UX/UI Designer"
+                            data-desc="An AI-powered recycling assistant that helps users identify recyclable materials and build sustainable habits through real-time feedback and gamification."
+                            data-skills="UX/UI Design, Research, Gamification, Figma"
+                            data-href="recycle-ai.html"
+                          >
+                            <span class="ife-card-poster ife-poster--teal">
+                              <svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M7 19H4.815a1.83 1.83 0 0 1-1.57-.881 1.785 1.785 0 0 1-.004-1.784L7.196 9.5"/><path d="M11 19h8.203a1.83 1.83 0 0 0 1.556-.89 1.784 1.784 0 0 0 0-1.775l-1.226-2.12"/><path d="m14 16-3 3 3 3"/><path d="M8.293 13.596 7.196 9.5 3.1 10.598"/><path d="m9.344 5.811 1.093-1.892A1.83 1.83 0 0 1 11.985 3a1.784 1.784 0 0 1 1.546.888l3.943 6.843"/><path d="m13.378 9.633 4.096 1.098 1.097-4.096"/></svg>
+                            </span>
+                            <span class="ife-card-name">RECYCLE.AI</span>
+                          </button>
+                        </li>
+
+                        <li class="ife-card-item">
+                          <button
+                            type="button"
+                            class="ife-card t-resize"
+                            data-ife-card
+                            data-color="green"
+                            data-cat="Product Design"
+                            data-title="Shared Expense App"
+                            data-link-type="slides"
+                            data-role="UX / Product Designer"
+                            data-desc="A collaborative expense-splitting experience designed during a 48-hour challenge."
+                            data-skills="Rapid Prototyping, UX Design, Figma, Collaboration"
+                            data-href="https://canva.link/9ie7aqk40qqizzf"
+                            data-external="true"
+                          >
+                            <span class="ife-card-poster ife-poster--green">
+                              <svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M6 2.5h12v19l-3-2-3 2-3-2-3 2Z"/><line x1="8.7" y1="7.5" x2="15.3" y2="7.5"/><line x1="8.7" y1="11.5" x2="15.3" y2="11.5"/></svg>
+                            </span>
+                            <span class="ife-card-name">Shared Expense App</span>
+                          </button>
+                        </li>
+
+                        <li class="ife-card-item">
+                          <button
+                            type="button"
+                            class="ife-card t-resize"
+                            data-ife-card
+                            data-color="yellow"
+                            data-cat="Mobile Engineering"
+                            data-title="WaveLinx CAT"
+                            data-link-type="project"
+                            data-role="Mobile Software Engineer Intern"
+                            data-desc="A Figma recreation that mirrors a live flow from the current WaveLinx CAT app, rebuilt to study its interaction design and user experience in depth."
+                            data-skills="Figma, Prototyping, Mobile UI, Responsive Design"
+                            data-href="mobile-app.html"
+                          >
+                            <span class="ife-card-poster ife-poster--yellow">
+                              <svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><line x1="5" y1="20" x2="5" y2="14"/><line x1="5" y1="10" x2="5" y2="4"/><line x1="12" y1="20" x2="12" y2="11"/><line x1="12" y1="7" x2="12" y2="4"/><line x1="19" y1="20" x2="19" y2="16"/><line x1="19" y1="12" x2="19" y2="4"/><line x1="2.5" y1="14" x2="7.5" y2="14"/><line x1="9.5" y1="7" x2="14.5" y2="7"/><line x1="16.5" y1="16" x2="21.5" y2="16"/></svg>
+                            </span>
+                            <span class="ife-card-name">WaveLinx CAT</span>
+                          </button>
+                        </li>
+                      </ul>
+
+                      <button type="button" class="ife-arrow ife-arrow--next" data-ife-next aria-label="Next project">
+                        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M9 6l6 6-6 6"/></svg>
+                      </button>
+                    </div>
+
+                    <div class="ife-info">
+                      <div class="ife-info-art" data-ife-art aria-hidden="true"></div>
+                      <div class="ife-info-text">
+                        <p class="ife-now-selected">Now selected</p>
+                        <p class="ife-info-cat" data-ife-cat></p>
+                        <h3 class="ife-info-title" data-ife-title></h3>
+                        <p class="ife-info-role" data-ife-role></p>
+                        <p class="ife-info-desc" data-ife-desc></p>
+                        <ul class="ife-info-skills" data-ife-skills></ul>
+                        <a class="ife-cta" data-ife-cta href="#" target="_blank" rel="noopener noreferrer">
+                          <span data-ife-cta-label>View case study</span>
+                          <span class="ife-cta-arrow" aria-hidden="true">→</span>
+                        </a>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+              <div class="seat-screen-ports" aria-hidden="true">
+                <span class="seat-port seat-port--power"></span>
+                <span class="seat-port"></span>
+                <span class="seat-port"></span>
+                <span class="seat-port seat-port--jack"></span>
               </div>
             </div>
           </div>
         </div>
       </section>
 
-      <!-- ── Featured UX Projects ── -->
-      <section id="projects" class="projects-section" aria-label="Featured Projects">
-        <div class="section-head">
-          <h2>selected work</h2>
-          <p>Case studies spanning product design, software engineering, and applied AI.</p>
+      <!-- ── Passenger passport / About ── -->
+      <section id="about" class="passport-section" aria-labelledby="passport-title">
+        <div class="passport-heading">
+          <h2 id="passport-title">Passenger passport</h2>
         </div>
-
-        <div class="project-grid">
-          <!-- Card 1 — Seraph Secure × UGA -->
-          <a href="https://medium.com/@avaniebaptiste/nmi-capstone-seraph-secure-uga-care-49c06a1fc5aa" class="project-card" aria-label="View Seraph Secure case study" target="_blank" rel="noopener noreferrer">
-            <div class="card-preview" style="background: linear-gradient(135deg, #1a3a4a 0%, #4db8c7 100%);">
-              <div class="card-preview-label">
-                <svg width="32" height="32" fill="none" viewBox="0 0 24 24"><path d="M12 1L3 5v6c0 5.55 3.84 10.74 9 12 5.16-1.26 9-6.45 9-12V5l-9-4zm0 10.99h7c-.53 4.12-3.28 7.79-7 8.94V12H5V6.3l7-3.11v8.8z" fill="currentColor"/></svg>
-              </div>
+        <div class="passport-book">
+          <div class="passport-page passport-identity">
+            <h3 class="passport-page-label">PASSPORT</h3>
+            <img src="assets/avanie.gif" alt="Avanie Baptiste" class="passport-photo" loading="lazy" width="180" height="220" />
+            <dl class="passport-details">
+              <div><dt>NAME</dt><dd>Avanie Baptiste</dd></div>
+              <div><dt>EDUCATION</dt><dd>B.S. Computer Science, University of Georgia</dd></div>
+              <div><dt>HOME BASE</dt><dd>Georgia, USA</dd></div>
+              <div><dt>PASSPORT NO</dt><dd>AJB-200-OK</dd></div>
+              <div><dt>ISSUED</dt><dd>2026</dd></div>
+            </dl>
+            <div class="passport-footer" aria-hidden="true">
+              <span class="passport-code">P&lt;USA&lt;BAPTISTE&lt;&lt;AVANIE&lt;&lt;&lt;<br>AJB200OK&lt;&lt;&lt;&lt;2026&lt;&lt;&lt;&lt;&lt;&lt;&lt;</span>
+              <span class="passport-year">20<br>26</span>
             </div>
-            <div class="card-body">
-              <span class="card-kicker">NMI Capstone · Spring 2026</span>
-              <h3>Seraph Secure × UGA</h3>
-              <p>Free, one-page scam prevention website helping older adults recognize threats and take action — partnering with Seraph Secure and the UGA CARE Center.</p>
-              <div class="card-meta">
-                <span class="card-role">Front-End & UX Developer</span>
-                <span class="card-arrow">→</span>
-              </div>
+          </div>
+          <div class="passport-page passport-story">
+            <h3 class="passport-page-label">SKILLS &amp; STAMPS</h3>
+            <p class="passport-bio">I’m a designer and developer with a computer science foundation who creates thoughtful, human-centered digital experiences. My work spans UX, frontend and mobile development, creative technology, accessibility, data analytics, and cloud computing. That range lets me carry a project from early ideas and research all the way to a polished, functional product. My Public Health minor and New Media background bring an empathetic, cross-disciplinary perspective to every project.</p>
+            <ul class="passport-stamps" aria-label="Skills and stamps">
+              <li>UX EXPERIENCE</li>
+              <li>FRONTEND DEVELOPMENT</li>
+              <li>MOBILE DEVELOPMENT</li>
+              <li>CREATIVE TECHNOLOGY</li>
+              <li>ACCESSIBILITY</li>
+              <li>DATA ANALYTICS</li>
+              <li>CLOUD COMPUTING</li>
+            </ul>
+            <div class="passport-footer" aria-hidden="true">
+              <svg class="passport-postmark" viewBox="0 0 110 42" focusable="false">
+                <path d="M2 6 C22 -5 35 20 56 8 S87 0 108 9 M2 17 C22 6 35 31 56 19 S87 11 108 20 M2 28 C22 17 35 42 56 30 S87 22 108 31" />
+              </svg>
             </div>
-          </a>
-
-          <!-- Card 2 — Circadian Rhythm Cycle Creation -->
-          <a href="https://gamma.app/docs/Circadian-Cycle-Creation-4s1uoiizepvzr11" class="project-card" aria-label="View Circadian Rhythm Cycle Creation design challenge" target="_blank" rel="noopener noreferrer">
-            <div class="card-preview" style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);">
-              <div class="card-preview-label">
-                <svg width="32" height="32" fill="none" viewBox="0 0 24 24"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm0 18c-4.42 0-8-3.58-8-8s3.58-8 8-8 8 3.58 8 8-3.58 8-8 8zm.5-13H11v6l5.25 3.15.75-1.23-4.5-2.67z" fill="currentColor"/></svg>
-              </div>
-            </div>
-            <div class="card-body">
-              <span class="card-kicker">Cooper Lighting · Spring 2026</span>
-              <h3>Circadian Rhythm Cycle Creation</h3>
-              <p>Early ideation design for customizable circadian-based cycle schedules for commissioners with easy setup and intuitive design — addressing real workflow challenges and improving user experience.</p>
-              <div class="card-meta">
-                <span class="card-role">UX Designer</span>
-                <span class="card-arrow">→</span>
-              </div>
-            </div>
-          </a>
-
-          <!-- Card 3 — WaveLinx CAT App -->
-          <a href="mobile-app.html" class="project-card" aria-label="View WaveLinx CAT App case study">
-            <div class="card-preview" style="background: linear-gradient(135deg, #f5a623 0%, #f8d88d 100%);">
-              <div class="card-preview-label">
-                <svg width="32" height="32" fill="none" viewBox="0 0 24 24"><path d="M15.5 1h-8A2.5 2.5 0 005 3.5v17A2.5 2.5 0 007.5 23h8a2.5 2.5 0 002.5-2.5v-17A2.5 2.5 0 0015.5 1zm-4 21c-.83 0-1.5-.67-1.5-1.5s.67-1.5 1.5-1.5 1.5.67 1.5 1.5-.67 1.5-1.5 1.5zm4.5-4H7V4h9v14z" fill="currentColor"/></svg>
-              </div>
-            </div>
-            <div class="card-body">
-              <span class="card-kicker">Cooper Lighting · Spring 2026</span>
-              <h3>WaveLinx CAT App</h3>
-              <p>Recreating the Area Creation flow UI in Figma — demonstrating component creation, prototyping, page building, and brand guideline adherence.</p>
-              <div class="card-meta">
-                <span class="card-role">Mobile SWE Intern</span>
-                <span class="card-arrow">→</span>
-              </div>
-            </div>
-          </a>
-
-          <!-- Card 4 — Beats by Dre User Research & Analytics -->
-          <a href="https://claude.ai/public/artifacts/0f5ca0fe-c5bb-4594-bbdc-a0bddd5ec88c" class="project-card" aria-label="View Beats by Dre research and analytics" target="_blank" rel="noopener noreferrer">
-            <div class="card-preview" style="background: linear-gradient(135deg, #d32f2f 0%, #ff6f00 100%);">
-              <div class="card-preview-label">
-                <svg width="32" height="32" viewBox="0 0 76 76" xmlns="http://www.w3.org/2000/svg"><path fill="currentColor" d="M 37.75,19L 38.25,19C 38.25,19 57,19 57,39C 57,48 55,51 54,52C 54,52 51,54 51.9999,51.25C 51.9999,48.9362 53,44 53,44C 53,44 54,44 54,39C 54,33 50,22.5 39,22.5L 37,22.5C 26,22.5 22,33 22,39C 22,44 23,44 23,44C 23,44 24.0001,48.9362 24.0001,51.25C 25,54 22,52 22,52C 21,51 19,48 19,39C 19,19 37.75,19 37.75,19 Z M 26.5533,39.1655C 28.194,38.9349 29.711,40.0781 29.9416,41.7188L 31.4725,52.6117C 31.7031,54.2524 30.56,55.7694 28.9192,56C 27.2785,56.2306 25.2615,55.0875 25.0309,53.4467L 23.5,42.5538C 23.2694,40.9131 24.9126,39.3961 26.5533,39.1655 Z M 49.4467,39.1655C 51.0874,39.3961 52.7306,40.9131 52.5,42.5538L 50.9691,53.4467C 50.7385,55.0875 48.7215,56.2306 47.0808,56C 45.44,55.7694 44.2969,54.2524 44.5275,52.6117L 46.0584,41.7188C 46.289,40.0781 47.806,38.9349 49.4467,39.1655 Z"/></svg>
-              </div>
-            </div>
-            <div class="card-body">
-              <span class="card-kicker">Extern · Fall 2025</span>
-              <h3>Beats by Dre: User Research & Analytics</h3>
-              <p>Analyzed consumer journey and market data using Python, Excel, and generative AI to drive strategic product launch recommendations. Synthesized qualitative and quantitative insights into data dashboards and presentations.</p>
-              <div class="card-meta">
-                <span class="card-role">Data Analyst & Researcher</span>
-                <span class="card-arrow">→</span>
-              </div>
-            </div>
-          </a>
-
-          <!-- Card 5 — RECYCLE.AI -->
-          <a href="recycle-ai.html" class="project-card" aria-label="View ECYCLE.AI case study">
-            <div class="card-preview" style="background: linear-gradient(135deg, #a8e6a3 0%, #56ab2f 100%);">
-              <div class="card-preview-label">
-                <svg width="32" height="32" fill="none" viewBox="0 0 24 24"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-1 17.93c-3.95-.49-7-3.85-7-7.93 0-.62.08-1.22.21-1.79L9 15v1c0 1.1.9 2 2 2v1.93zm6.9-2.54c-.26-.81-1-1.39-1.9-1.39h-1v-3c0-.55-.45-1-1-1H8v-2h2c.55 0 1-.45 1-1V7h2c1.1 0 2-.9 2-2v-.41c2.93 1.19 5 4.06 5 7.41 0 2.08-.8 3.97-2.1 5.39z" fill="currentColor"/></svg>
-              </div>
-            </div>
-            <div class="card-body">
-              <span class="card-kicker">HCI Course Project · Spring 2025</span>
-              <h3>RECYCLE.AI</h3>
-              <p>Snap, Sort, & Save The Earth — an AI-powered recycling assistant that helps users identify recyclable materials and build sustainable habits through real-time feedback and gamification.</p>
-              <div class="card-meta">
-                <span class="card-role">Team Lead, UX/UI Designer</span>
-                <span class="card-arrow">→</span>
-              </div>
-            </div>
-          </a>
-
-          <!-- Card 6 — NMIX Dossier: Feebee's Kitchen -->
-          <a href="https://medium.com/@avaniebaptiste/native-app-final-project-feebees-kitchen-bbe62d80981c" class="project-card" aria-label="View NMIX Dossier: Feebee's Kitchen case study" target="_blank" rel="noopener noreferrer">
-            <div class="card-preview" style="background: linear-gradient(135deg, #f5e1e1 0%, #f49cbb 100%);">
-              <div class="card-preview-label">
-                <img src="assets/450166.png" alt="Chef Hat Icon" width="32" height="32" style="display:block;margin:0 auto;filter:invert(1);"/>
-              </div>
-            </div>
-            <div class="card-body">
-              <span class="card-kicker">Native App Dev · Spring 2025</span>
-              <h3>Feebee's Kitchen</h3>
-              <p>An interactive iPad cooking game built in SwiftUI, featuring custom gestures, playful art, and audio feedback. Designed for a Native App Development course to blend creativity with technical skills.</p>
-              <div class="card-meta">
-                <span class="card-role">iOS Game Developer</span>
-                <span class="card-arrow">→</span>
-              </div>
-            </div>
-          </a>
-        </div>
-      </section>
-
-      <!-- ── About ── -->
-      <section id="about" class="about-detail" aria-label="About">
-        <div class="about-detail-inner">
-          <h2>about me</h2>
-          <p>
-            I'm a senior at the University of Georgia graduating May 2026 with a Bachelor's
-            of Science in Computer Science, a minor in Public Health, and a certificate in
-            New Media. My interests span front-end development, native app development,
-            UX/UI design, immersive realities, and human-computer interaction.
-          </p>
-          <p>
-            Outside of school, I love to travel, binge-watch TV shows, dabble in
-            photography & editing, and play video games.
-          </p>
+          </div>
         </div>
       </section>
     </main>
@@ -257,5 +522,8 @@
     <script src="https://cdn.jsdelivr.net/npm/gsap@3.12.5/dist/gsap.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/gsap@3.12.5/dist/ScrollTrigger.min.js"></script>
     <script src="script.js"></script>
+    <script src="ife.js" defer></script>
+    <script type="module" src="air-intro.js"></script>
+    <script src="air-shooting-star.js" defer></script>
   </body>
 </html>

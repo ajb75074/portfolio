@@ -1,6 +1,7 @@
-gsap.registerPlugin(ScrollTrigger);
+if (window.gsap && window.ScrollTrigger) gsap.registerPlugin(ScrollTrigger);
 
 window.addEventListener("DOMContentLoaded", () => {
+  if (!window.gsap || !window.ScrollTrigger || matchMedia("(prefers-reduced-motion: reduce)").matches) return;
 
   /* ── Homepage: Hero intro timeline ── */
   if (document.querySelector(".about-photo")) {

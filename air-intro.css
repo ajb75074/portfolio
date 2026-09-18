@@ -1,0 +1,918 @@
+/* One fixed landscape stays behind both the transparent scene and the HTML site. */
+body.air-home { background: #2e4666; isolation: isolate; }
+.air-sky { position: fixed; inset: 0; z-index: -1; pointer-events: none; background: linear-gradient(#2e4666 0%, #5c7ca0 55%, #e9efef 100%); overflow: hidden; }
+.air-sky::before, .air-sky::after { content: ''; position: absolute; width: 120%; left: -10%; height: 35%; bottom: -2%; border-radius: 50% 70% 0 0; background: #8b8c88; transform: rotate(-8deg); }
+.air-sky::after { bottom: -13%; background: #463f3d; transform: rotate(9deg); }
+
+.air-moon {
+  position: absolute;
+  top: 42%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  width: clamp(56px, 8vw, 92px);
+  aspect-ratio: 1;
+  border-radius: 50%;
+  background: radial-gradient(circle at 38% 35%, #fffaf0 0%, #fbf3de 55%, #f0e2c0 100%);
+  box-shadow: 0 0 60px 18px rgba(251, 243, 222, 0.35), 0 0 140px 50px rgba(251, 243, 222, 0.15);
+}
+.air-moon::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  border-radius: 50%;
+  background: radial-gradient(circle at 68% 62%, rgba(70, 63, 61, 0.24) 0%, transparent 55%);
+}
+
+.air-star {
+  position: absolute;
+  top: var(--y);
+  left: var(--x);
+  width: var(--size);
+  height: var(--size);
+  border-radius: 50%;
+  background: #fdf6e3;
+  opacity: 0.7;
+  animation: air-twinkle var(--dur) ease-in-out var(--delay) infinite;
+}
+@keyframes air-twinkle {
+  0%, 100% { opacity: .25; transform: scale(.8); }
+  50% { opacity: 1; transform: scale(1.15); }
+}
+@media (prefers-reduced-motion: reduce) {
+  .air-star { animation: none; opacity: .7; }
+}
+
+/* Shooting star: spawned/removed by air-shooting-star.js. A short tapered
+   streak (tail) with a bright head, animated along its own rotated axis so
+   the gradient direction and travel direction always agree. */
+.air-shooting-star {
+  position: absolute;
+  top: var(--sy);
+  left: var(--sx);
+  width: 90px;
+  height: 2px;
+  border-radius: 999px;
+  background: linear-gradient(90deg, transparent 0%, rgba(253, 246, 227, 0.75) 70%, #fdf6e3 100%);
+  transform-origin: left center;
+  transform: rotate(var(--angle)) translateX(0);
+  opacity: 0;
+  pointer-events: none;
+  animation: air-shoot var(--dur) ease-out forwards;
+}
+.air-shooting-star::after {
+  content: '';
+  position: absolute;
+  right: -1px;
+  top: 50%;
+  width: 4px;
+  height: 4px;
+  margin-top: -2px;
+  border-radius: 50%;
+  background: #fdf6e3;
+  box-shadow: 0 0 6px 2px rgba(253, 246, 227, 0.8);
+}
+@keyframes air-shoot {
+  0% { opacity: 0; transform: rotate(var(--angle)) translateX(0); }
+  8% { opacity: 1; }
+  75% { opacity: 1; }
+  100% { opacity: 0; transform: rotate(var(--angle)) translateX(var(--dist)); }
+}
+
+.air-intro { min-height: 100svh; position: relative; display: grid; place-items: center; padding: 110px 24px 70px; overflow: hidden; }
+.air-stage { position: absolute; inset: 0; z-index: 2; }
+.air-stage canvas { width: 100%; height: 100%; display: block; cursor: pointer; }
+.air-intro[data-state='loading'] .air-stage { background: #eee7da; }
+.air-controls { position: absolute; z-index: 3; bottom: 62px; left: 20px; right: 20px; text-align: center; }
+.air-label { position: absolute; top: clamp(24px, 5svh, 48px); left: 24px; right: 24px; margin: 0; z-index: 3; display: flex; align-items: baseline; justify-content: center; flex-wrap: wrap; gap: 10px; }
+.air-label-brand { font-family: 'Fredoka', 'Arial Rounded MT Bold', sans-serif; font-weight: 600; font-size: 15px; letter-spacing: .02em; color: #51402c; }
+.air-label-sep { font-size: 13px; color: #a8927a; }
+.air-label-sub { font-size: 11px; letter-spacing: .2em; text-transform: uppercase; color: #8a7a63; }
+
+/* ── Shimmer text (Transitions.dev) ──
+   Two-layer construction: the base text renders normally in
+   --shimmer-base; ::before duplicates it via attr(data-text),
+   clips a sweeping gradient onto the glyphs, and animates
+   background-position. Reduced motion is handled by the site's
+   existing global `*, *::before, *::after { animation: none }`
+   override, so no extra media query is needed here. */
+.t-shimmer {
+  --shimmer-dur: 2000ms;
+  --shimmer-base: #675a49;
+  --shimmer-highlight: #fff6df;
+  --shimmer-band: 400%;
+  --shimmer-ease: linear;
+  position: relative;
+  display: inline-block;
+  color: var(--shimmer-base);
+}
+.t-shimmer::before {
+  content: attr(data-text);
+  position: absolute;
+  inset: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  pointer-events: none;
+  background-image: linear-gradient(
+    90deg,
+    transparent 0%,
+    transparent 40%,
+    var(--shimmer-highlight) 50%,
+    transparent 60%,
+    transparent 100%
+  );
+  background-size: var(--shimmer-band) 100%;
+  background-repeat: no-repeat;
+  -webkit-background-clip: text;
+  background-clip: text;
+  color: transparent;
+  -webkit-text-fill-color: transparent;
+  animation: t-shimmer var(--shimmer-dur) var(--shimmer-ease) infinite;
+}
+@keyframes t-shimmer {
+  0% { background-position: 100% 0; }
+  100% { background-position: 0% 0; }
+}
+.air-button {
+  border: 1px solid #897864;
+  border-radius: 999px;
+  padding: 14px 28px;
+  background: #fff9ee;
+  color: #51483d;
+  font-family: 'Fredoka', 'Arial Rounded MT Bold', sans-serif;
+  font-weight: 600;
+  font-size: 16px;
+  letter-spacing: .01em;
+  cursor: pointer;
+  text-decoration: none;
+  display: inline-block;
+}
+.air-button.t-shimmer { --shimmer-base: #51483d; --shimmer-highlight: #fff3d6; --shimmer-dur: 2400ms; }
+.air-button:hover { background: #f5dfd8; }
+.air-button:disabled { cursor: wait; opacity: .65; }
+.air-home :focus-visible { outline: 3px solid #a84363; outline-offset: 5px; }
+.air-skip { position: absolute; right: 24px; bottom: 24px; z-index: 4; }
+.air-link { font: inherit; font-size: 12px; color: #594f46; background: transparent; border: 0; text-decoration: underline; text-underline-offset: 4px; cursor: pointer; padding: 10px; }
+.air-status { font-family: Georgia, 'Times New Roman', serif; font-style: italic; font-size: 14px; color: #675a49; min-height: 18px; }
+.air-ticket-kicker { font-size: 11px; text-transform: uppercase; letter-spacing: .18em; color: #926f5b; }
+/* Editable paper ticket; all decorative layers remain separate from the text. */
+.air-ticket {
+  --ticket-paper: #faf3e3; --ticket-ink: #482e23; --ticket-line: #d7cbb6;
+  width: min(1000px, 100%); display: grid; grid-template-columns: minmax(0, 1fr) 22%;
+  position: relative; isolation: isolate; color: var(--ticket-ink); border-radius: 26px;
+  background: var(--ticket-paper); border: 1px solid #fffdf4;
+  box-shadow: 0 24px 48px #4c63512b, 0 5px 9px #51402c16, inset 0 0 0 1px #dfd2bc;
+}
+.air-ticket::before { content: ''; position: absolute; z-index: -2; inset: -9px 5% -13px -12px; border-radius: 24px; background: #eee4cd; border: 1px solid #fff9e9; transform: rotate(-2.2deg); box-shadow: 0 8px 16px #4d59431a; }
+.air-ticket::after { content: ''; position: absolute; z-index: -1; inset: 0; pointer-events: none; border-radius: inherit; background: radial-gradient(ellipse at 25% 0%, #fffaf1, transparent 65%), repeating-linear-gradient(113deg, #a08a6220 0 .5px, transparent .5px 4px), repeating-linear-gradient(23deg, #a08a6210 0 .5px, transparent .5px 3px), var(--ticket-paper); box-shadow: inset 0 0 0 1px #fffdf4; }
+.air-ticket-main { min-width: 0; padding: 28px; padding-bottom: 18px; }
+.air-ticket-heading { display: flex; align-items: center; justify-content: space-between; gap: 22px; }
+.air-ticket h1 { font-family: 'Fredoka', 'Arial Rounded MT Bold', sans-serif; font-size: clamp(34px, 4.4vw, 54px); font-weight: 700; line-height: 1; letter-spacing: -.045em; margin: 0; white-space: nowrap; }
+.air-boarding-label { display: table; margin: 14px 0 0; padding: 8px 17px; border-radius: 7px; background: #d8c5e9; color: #4e385d; font-size: 12px; letter-spacing: .28em; font-weight: 500; }
+.air-ticket-motto { font-size: 9px; letter-spacing: .22em; line-height: 1.7; flex: 1; max-width: 230px; margin: 0; }
+.air-ticket-person, .air-ticket-details { display: grid; margin: 0; }
+.air-ticket-person { grid-template-columns: 1.1fr 1fr; margin-top: 24px; padding-bottom: 18px; border-bottom: 1px solid var(--ticket-line); }
+.air-ticket dt { text-transform: uppercase; font-size: 12px; letter-spacing: .18em; font-weight: 600; margin-bottom: 7px; }
+.air-ticket dd { margin: 0; font-family: Georgia, 'Times New Roman', serif; font-weight: 600; line-height: 1.1; letter-spacing: -.045em; }
+.air-ticket-person > div + div { border-left: 1px solid var(--ticket-line); padding-left: 30px; }
+.air-ticket-person > div:first-child { padding-right: 20px; }
+.air-ticket-person dd { font-size: clamp(27px, 3vw, 36px); }
+.air-ticket-person > div:last-child dd { font-size: clamp(21px, 2.1vw, 27px); letter-spacing: -.035em; }
+.air-ticket-details { grid-template-columns: .75fr .8fr 1.35fr; padding-top: 22px; }
+.air-ticket-details > div + div { border-left: 1px solid var(--ticket-line); padding-left: 28px; }
+.air-ticket-details dd { font-size: clamp(26px, 3vw, 36px); }
+.air-ticket-details > div:last-child dd { font-size: clamp(23px, 2.5vw, 30px); }
+.air-ticket-replay { margin-top: 24px; padding: 6px 0; color: #79634f; font-size: 11px; }
+.air-ticket-stub { position: relative; min-width: 0; padding: 24px 18px 22px 24px; display: flex; flex-direction: column; align-items: center; justify-content: center; text-align: center; }
+.air-perforation { position: absolute; width: 26px; height: 100%; left: -13px; top: 0; overflow: visible; }
+.air-perforation path { fill: none; stroke: #b5aa94; stroke-width: 5; stroke-linecap: round; stroke-dasharray: 7 17; filter: drop-shadow(1px 1px 0 #fffdf5); }
+.air-stub-brand { font: 700 clamp(18px, 2vw, 25px)/1 'Fredoka', 'Arial Rounded MT Bold', sans-serif; letter-spacing: -.04em; margin: 0 0 12px; }
+.air-stub-caption { font-size: 9px; letter-spacing: .26em; line-height: 1.6; margin: 0; }
+.air-stub-window { width: min(112px, 100%); aspect-ratio: .75; border: 1px solid #a89980; border-radius: 44% / 32%; margin: 23px 0 16px; padding: 9px; background: #f5ebd7; box-shadow: inset 2px 2px 3px #fffdf6, inset -2px -2px 3px #b5a88e50, 1px 2px 0 #fffdf5; }
+.air-stub-view { height: 100%; position: relative; overflow: hidden; border: 1px solid #b8aa91; border-radius: 43% / 31%; background: radial-gradient(ellipse at 85% 75%, #fff6dc 0 20%, transparent 21%), radial-gradient(ellipse at 10% 62%, #fff9e8 0 23%, transparent 24%), linear-gradient(#9bc3ea, #d0e5f0 70%, #b3c5a7); box-shadow: inset 2px 3px 5px #4a514a35; }
+.air-stub-wing { position: absolute; width: 95%; height: 46%; left: -9%; bottom: 3%; background: linear-gradient(153deg, #f0e9ef 48%, #9aabe0 49%, #c7c5e7 62%); clip-path: polygon(0 58%, 100% 0, 78% 24%, 35% 100%, 0 100%); }
+.air-barcode { height: 47px; width: 100%; max-width: 180px; margin: 24px 0 9px; background: repeating-linear-gradient(90deg, #593f2e 0 1px, transparent 1px 3px, #593f2e 3px 6px, transparent 6px 8px, #593f2e 8px 10px, transparent 10px 11px, #593f2e 11px 12px, transparent 12px 16px, #593f2e 16px 20px, transparent 20px 22px); }
+@media (max-width: 1000px) { .air-ticket-heading { flex-wrap: wrap; } .air-ticket-motto { flex-basis: 100%; max-width: none; } .air-ticket-main { padding: 28px; } .air-ticket-person > div + div { padding-left: 18px; } .air-ticket-details > div + div { padding-left: 18px; } }
+@media (max-width: 760px) {
+  .air-ticket { grid-template-columns: 1fr; max-width: 460px; border-radius: 21px; }
+  .air-ticket-stub { display: none; }
+  .air-ticket-person { grid-template-columns: 1fr; gap: 16px; margin-top: 20px; }
+  .air-ticket-person > div + div { padding-left: 0; border: 0; }
+  .air-ticket-person > div:first-child { padding-right: 0; }
+  .air-ticket-person dd { font-size: clamp(27px, 6vw, 34px); }
+  .air-ticket-person > div:last-child dd { font-size: 22px; }
+  .air-ticket-person br { display: none; }
+  .air-ticket-details { grid-template-columns: 1fr 1fr; gap: 18px; }
+  .air-ticket-details > div:last-child { grid-column: 1 / -1; border: 0; border-top: 1px solid var(--ticket-line); padding: 15px 0 0; }
+  .air-ticket h1 { font-size: clamp(32px, 8vw, 44px); }
+  .air-ticket-replay { display: block; margin: 20px auto 0; text-align: center; }
+}
+.air-intro [hidden] { display: none !important; }
+.air-home.air-boarding .site-header { visibility: hidden; }
+html.air-boarding, body.air-boarding { height: 100%; overflow: hidden; }
+.air-home .about-section, .air-home .about-detail, .air-home .postcard-section { background: transparent; }
+/* Footer sits directly on the night sky here (unlike other pages using styles.css's light --bg). */
+.air-home .site-footer { color: #d6cfc2; border-top-color: rgba(247, 241, 227, 0.18); }
+.air-home .footer-socials a { color: #d6cfc2; border-color: rgba(247, 241, 227, 0.3); }
+.air-home #projects, .air-home #about { scroll-margin-top: 110px; }
+@media(max-width: 520px) { .air-label-brand { font-size: 13px; } .air-label-sub { font-size: 9px; letter-spacing: .14em; } .air-ticket-main { padding: 24px 20px; } }
+@media(prefers-reduced-motion: reduce) { html { scroll-behavior: auto; } *, *::before, *::after { animation: none !important; transition: none !important; } }
+@keyframes air-arrive { from { opacity: 0; transform: translateY(18px); } to { opacity: 1; transform: translateY(0); } }
+.air-intro[data-state='complete'] .air-ticket { animation: air-arrive .6s ease-out both; }
+
+/* ── Latest Project Postcard ── */
+
+.postcard-section {
+  --pc-cream: #fbf4e6;
+  --pc-ink: #33261c;
+  --pc-muted: #5b4c3d;
+  --pc-pink: #d9556b;
+  --pc-lavender: #ded0f2;
+  --pc-lavender-ink: #4b3b73;
+  --pc-sage: #8fa890;
+  --pc-tan: #c7ba9d;
+  --pc-red: #c9504a;
+  --pc-blue: #4e77a8;
+  max-width: 1280px;
+  margin: 0 auto;
+  padding: 2rem 1.5rem 0;
+}
+
+.postcard-lead { text-align: center; margin-bottom: 28px; }
+.postcard-lead h2 { margin: 0; font-size: clamp(28px, 4.4vw, 42px); color: #f7f1e3; }
+
+.postcard-frame {
+  padding: 14px;
+  border-radius: 28px;
+  background: repeating-linear-gradient(
+    45deg,
+    var(--pc-red) 0px, var(--pc-red) 11px,
+    var(--pc-cream) 11px, var(--pc-cream) 15px,
+    var(--pc-blue) 15px, var(--pc-blue) 26px,
+    var(--pc-cream) 26px, var(--pc-cream) 30px
+  );
+  box-shadow: 0 30px 60px rgba(46, 36, 24, 0.24);
+}
+
+.postcard-inner {
+  background: var(--pc-cream);
+  border-radius: 18px;
+  overflow: hidden;
+  display: flex;
+  align-items: stretch;
+}
+
+.postcard-window-col {
+  flex: 0 0 42%;
+  max-width: 500px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 2.5rem;
+  border-right: 1.5px dotted var(--pc-tan);
+}
+
+.postcard-window {
+  position: relative;
+  width: min(360px, 100%);
+  aspect-ratio: 370 / 452;
+  border-radius: 44% / 32%;
+  border: 11px solid var(--pc-cream);
+  box-shadow: 0 0 0 3px var(--pc-tan), 0 18px 30px rgba(46, 36, 24, 0.22);
+  overflow: hidden;
+}
+
+.postcard-window-view {
+  position: relative;
+  width: 100%;
+  height: 100%;
+  overflow: hidden;
+  border-radius: 43% / 31%;
+  background:
+    radial-gradient(ellipse at 78% 20%, #fff9e5 0, transparent 35%),
+    linear-gradient(#c5e5ec, #edf4ed 65%, #f2ded2);
+}
+
+.postcard-cloud { position: absolute; background: #fbf9f1; border-radius: 999px; }
+.postcard-cloud--1 { top: 13%; left: 10%; width: 20%; height: 7%; opacity: 0.85; }
+.postcard-cloud--2 { top: 21%; left: 27%; width: 14%; height: 5.5%; opacity: 0.65; }
+.postcard-cloud--3 { top: 30%; left: 55%; width: 16%; height: 6%; opacity: 0.7; }
+
+.postcard-flightpath { position: absolute; top: 12%; left: 12%; width: 68%; height: 68%; }
+.postcard-flightpath path { stroke: #f5f0e1; stroke-width: 2.5; stroke-dasharray: 1 9; stroke-linecap: round; }
+
+/* The link wraps the pin cluster but doesn't generate its own box, so its
+   children keep positioning against .postcard-window-view exactly as
+   before, while still being one unified click/tap target with a name. */
+.postcard-pin-ping {
+  position: absolute;
+  bottom: 29%;
+  left: 47%;
+  width: 26px;
+  height: 26px;
+  transform: translate(-50%, 50%);
+  border-radius: 50%;
+  background: rgba(217, 85, 107, 0.55);
+  animation: postcard-ping 1.8s cubic-bezier(0, 0, 0.2, 1) infinite;
+  pointer-events: none;
+}
+@keyframes postcard-ping {
+  0% { transform: translate(-50%, 50%) scale(0.75); opacity: 0.65; }
+  75%, 100% { transform: translate(-50%, 50%) scale(2.1); opacity: 0; }
+}
+
+/* A real, focusable box (not display:contents, which silently breaks an
+   anchor's own focusability/hit-testing) sized to just the pin glyph. */
+.postcard-pin-link {
+  position: absolute;
+  bottom: 24%;
+  left: 47%;
+  width: 30px;
+  transform: translateX(-50%);
+  transition: transform 0.2s ease;
+}
+.postcard-pin-link:hover, .postcard-pin-link:focus-visible { transform: translateX(-50%) translateY(-3px); }
+
+.postcard-pin {
+  display: block;
+  width: 100%;
+  height: auto;
+  filter: drop-shadow(0 5px 5px rgba(46, 36, 24, 0.32));
+}
+
+.postcard-pin-shadow {
+  position: absolute;
+  bottom: 23.4%;
+  left: 47%;
+  width: 15px;
+  height: 5px;
+  background: rgba(46, 36, 24, 0.3);
+  border-radius: 50%;
+  transform: translateX(-50%);
+  filter: blur(1px);
+}
+
+.postcard-pin-label {
+  position: absolute;
+  bottom: 19%;
+  left: 38%;
+  background: var(--pc-cream);
+  border-radius: 6px;
+  padding: 3px 9px;
+  font-family: monospace;
+  font-size: 9px;
+  letter-spacing: 1.5px;
+  color: var(--pc-ink);
+  text-transform: uppercase;
+  box-shadow: 0 3px 8px rgba(46, 36, 24, 0.2);
+  white-space: nowrap;
+}
+
+/* Hand-scrawled "click me" note, like something doodled on a real postcard photo. */
+.postcard-clickme {
+  position: absolute;
+  bottom: 33%;
+  left: 54%;
+  width: 62px;
+  transform: rotate(-7deg);
+  text-align: right;
+  color: #4a3326;
+  opacity: 0.85;
+}
+.postcard-clickme-text {
+  display: block;
+  font-family: Georgia, 'Times New Roman', serif;
+  font-style: italic;
+  font-weight: 700;
+  font-size: 12px;
+  margin-bottom: 2px;
+}
+.postcard-clickme-arrow { width: 60px; height: 50px; overflow: visible; }
+
+.postcard-ground { position: absolute; bottom: 0; left: 0; width: 100%; height: 25%; }
+.postcard-ground path { fill: var(--pc-sage); }
+
+.postcard-window-vignette {
+  position: absolute;
+  inset: 0;
+  box-shadow: inset 0 0 40px rgba(46, 36, 24, 0.25);
+  pointer-events: none;
+}
+
+.postcard-message {
+  flex: 1;
+  min-width: 0;
+  position: relative;
+  padding: 3rem 3rem 2.5rem 2rem;
+  display: flex;
+  flex-direction: column;
+  gap: 0.95rem;
+  background-image: repeating-linear-gradient(180deg, transparent 0px, transparent 31px, rgba(199, 186, 157, 0.32) 32px);
+}
+
+.postcard-stamp {
+  position: absolute;
+  top: 20px;
+  right: 18px;
+  width: 70px;
+  height: 84px;
+}
+
+.postcard-label {
+  margin: 0.2rem 0 0;
+  text-align: center;
+  font-family: Georgia, 'Times New Roman', serif;
+  font-weight: 600;
+  font-size: 13px;
+  letter-spacing: 0.35em;
+  color: rgba(51, 38, 28, 0.4);
+  text-transform: uppercase;
+}
+
+.postcard-badge {
+  display: inline-flex;
+  align-items: center;
+  align-self: flex-start;
+  margin-top: 0.4rem;
+  background: var(--pc-lavender);
+  color: var(--pc-lavender-ink);
+  font-family: monospace;
+  font-size: 12px;
+  letter-spacing: 0.16em;
+  font-weight: 600;
+  text-transform: uppercase;
+  padding: 0.45rem 0.9rem;
+  border-radius: 999px;
+}
+
+.postcard-title {
+  margin: 0;
+  font-family: 'Fredoka', 'Arial Rounded MT Bold', sans-serif;
+  font-weight: 700;
+  font-size: clamp(2.1rem, 3.6vw, 2.8rem);
+  color: var(--pc-ink);
+  line-height: 1;
+}
+
+.postcard-quote {
+  margin: 0;
+  font-family: Georgia, 'Times New Roman', serif;
+  font-style: italic;
+  font-size: 1.15rem;
+  color: var(--pc-pink);
+}
+
+.postcard-desc {
+  margin: 0;
+  font-size: 1rem;
+  line-height: 1.65;
+  color: var(--pc-muted);
+  max-width: 50ch;
+}
+
+.postcard-stack {
+  margin: 0;
+  font-family: monospace;
+  font-size: 12px;
+  letter-spacing: 0.05em;
+  color: var(--pc-muted);
+  text-transform: uppercase;
+}
+
+.postcard-links {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 1.5rem;
+  margin-top: 0.2rem;
+}
+
+.postcard-link {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.4rem;
+  font-size: 1rem;
+  font-weight: 600;
+  color: var(--pc-ink);
+  text-decoration: none;
+  border-bottom: 1.5px solid var(--pc-ink);
+  padding-bottom: 2px;
+}
+.postcard-link--accent { color: var(--pc-pink); border-bottom-color: var(--pc-pink); }
+.postcard-link svg { transition: transform 0.2s ease; }
+.postcard-link:hover svg, .postcard-link:focus-visible svg { transform: translateX(3px); }
+
+.postcard-signoff {
+  margin: auto 0 0;
+  align-self: flex-end;
+  font-family: Georgia, 'Times New Roman', serif;
+  font-style: italic;
+  font-size: 0.95rem;
+  color: var(--pc-tan);
+}
+
+@media (max-width: 760px) {
+  .postcard-section { padding: 1.5rem 1rem 0; }
+  .postcard-frame { padding: 10px; border-radius: 22px; }
+  .postcard-inner { flex-direction: column; }
+  .postcard-window-col {
+    flex: 0 0 auto;
+    max-width: none;
+    width: 100%;
+    padding: 1.75rem 1.5rem 1.25rem;
+    border-right: 0;
+    border-bottom: 1.5px dotted var(--pc-tan);
+  }
+  .postcard-window { width: min(260px, 72%); }
+  .postcard-pin-link { width: 23px; }
+  .postcard-clickme { width: 50px; bottom: 44%; left: 58%; }
+  .postcard-clickme-text { font-size: 10px; }
+  .postcard-clickme-arrow { width: 48px; height: 40px; }
+  .postcard-pin-shadow { width: 11px; height: 3.5px; }
+  .postcard-message { padding: 2.75rem 1.5rem 2rem; }
+  .postcard-stamp { width: 48px; height: 58px; top: 16px; right: 14px; }
+  .postcard-desc { max-width: none; }
+  .postcard-signoff { align-self: flex-start; }
+}
+
+.passport-section { max-width: 1180px; margin: 0 auto; padding: 90px 24px 110px; color: #544638; }
+.passport-heading { text-align: center; margin-bottom: 32px; }
+.passport-heading h2 { font-size: clamp(32px, 5vw, 46px); margin: 8px 0; color: #f7f1e3; }
+.passport-heading > p:last-child { color: #c7d2e0; font-size: 14px; }
+.passport-book { display: grid; grid-template-columns: .95fr 1.05fr; border: 6px solid #8fa99b; border-radius: 14px 22px 22px 14px; background: #fff9eb; box-shadow: 0 24px 65px #536f6329, 0 4px 0 #718d7f; overflow: hidden; }
+.passport-page { padding: clamp(22px, 3vw, 32px); min-width: 0; background: repeating-linear-gradient(35deg, transparent 0 16px, #adbba60a 16px 17px); }
+.passport-identity { position: relative; background-color: #f8f1df; border-right: 1px solid #d7cab1; box-shadow: inset -18px 0 24px -22px #71634c; }
+.passport-story { box-shadow: inset 18px 0 24px -22px #71634c; }
+.passport-page-label { display: flex; flex-wrap: wrap; justify-content: space-between; gap: 10px; margin: 0 0 20px; padding-bottom: 14px; border-bottom: 1px solid #d7cab1; font: 600 clamp(16px, 2vw, 22px)/1.4 Georgia, serif; letter-spacing: .16em; }
+.passport-page-label span { font-size: 12px; align-self: center; }
+.passport-identity { display: flex; flex-direction: column; }
+.passport-photo { width: 180px; max-width: 100%; height: 220px; object-fit: cover; align-self: center; border: 8px solid #fffcf4; outline: 1px solid #d8cbb5; border-radius: 4px; box-shadow: 0 5px 12px #6a614315; margin: 0 0 18px; }
+.passport-details { display: grid; gap: 0; margin: 0; align-content: start; }
+.passport-details > div { display: grid; grid-template-columns: 100px minmax(0, 1fr); gap: 12px; align-items: baseline; padding: 9px 0; border-bottom: 1px solid #d7cab14d; }
+.passport-details > div:last-child { border: 0; }
+.passport-details dt { font-size: 10px; letter-spacing: .13em; color: #695944; }
+.passport-details dd { margin: 0; font: 17px/1.4 Georgia, serif; }
+.passport-bio { font-size: 14px; line-height: 1.65; margin: 0; }
+.passport-stamps { list-style: none; padding: 14px 10px; margin: 18px 0; display: grid; grid-template-columns: repeat(12, minmax(0, 1fr)); grid-template-rows: 74px 78px 74px; gap: 5px 0; align-items: center; }
+.passport-stamps li { position: relative; display: grid; place-items: center; min-width: 0; min-height: 62px; padding: 12px 9px; border: 2px solid currentColor; outline: 1px solid currentColor; outline-offset: -6px; color: #416d60; text-align: center; letter-spacing: .04em; font-size: 10px; line-height: 1.4; font-weight: 700; transform: translateY(var(--stamp-y, 0px)) rotate(var(--stamp-angle, -4deg)); }
+/* Individually placed impressions: irregular silhouettes and staggered baselines. */
+.passport-stamps li:nth-child(1) { grid-area: 1 / 1 / 2 / 5; --stamp-angle: -14deg; --stamp-y: 6px; border-radius: 50%; min-height: 69px; }
+.passport-stamps li:nth-child(2) { grid-area: 1 / 5 / 2 / 10; --stamp-angle: 7deg; --stamp-y: -7px; color: #915764; border-radius: 3px 12px; }
+.passport-stamps li:nth-child(3) { grid-area: 2 / 1 / 3 / 5; --stamp-angle: -5deg; --stamp-y: 9px; color: #526c84; border-radius: 12px 3px; }
+.passport-stamps li:nth-child(4) { grid-area: 2 / 9 / 3 / 13; --stamp-angle: 13deg; --stamp-y: -14px; color: #78516f; border-radius: 7px; border-style: dashed; }
+.passport-stamps li:nth-child(5) { grid-area: 2 / 5 / 3 / 9; --stamp-angle: -11deg; --stamp-y: -4px; min-height: 78px; color: #526c84; border-radius: 50%; }
+.passport-stamps li:nth-child(6) { grid-area: 3 / 3 / 4 / 7; --stamp-angle: 9deg; --stamp-y: 5px; color: #805d36; border-radius: 3px; border-style: double; border-width: 3px; }
+.passport-stamps li:nth-child(7) { grid-area: 3 / 8 / 4 / 13; --stamp-angle: -8deg; --stamp-y: -3px; color: #416d60; border-radius: 45%; min-height: 69px; }
+.passport-footer { display: flex; justify-content: space-between; align-items: center; gap: 14px; margin-top: auto; padding-top: 20px; color: #7c9090; pointer-events: none; }
+.passport-code { font: 10px/1.8 monospace; letter-spacing: .14em; overflow-wrap: anywhere; }
+.passport-year { font: 20px/1.05 Georgia, serif; }
+.passport-postmark { width: 105px; height: 40px; margin-left: auto; opacity: .65; }
+.passport-postmark path { fill: none; stroke: currentColor; stroke-width: 1.5; stroke-dasharray: 3 2; }
+.passport-story { display: flex; flex-direction: column; }
+@media (max-width: 680px) {
+  .passport-section { padding: 60px 18px 80px; }
+  .passport-book { grid-template-columns: 1fr; }
+  .passport-identity { border-right: 0; border-bottom: 1px solid #d7cab1; box-shadow: inset 0 -18px 24px -22px #71634c; }
+  .passport-story { box-shadow: inset 0 18px 24px -22px #71634c; }
+}
+
+@media (min-width: 681px) and (max-width: 900px) {
+  .passport-page { padding: 24px; }
+  .passport-details > div { grid-template-columns: 1fr; gap: 4px; }
+}
+@media (max-width: 380px) {
+  .passport-page { padding: 20px; }
+  .passport-details > div { grid-template-columns: 1fr; gap: 4px; }
+}
+
+/* During expansion the moving trim must not pass behind the intro copy. */
+.air-intro[data-state='opening'] .air-label,
+.air-intro[data-state='opening'] .air-controls { visibility: hidden; }
+.air-intro:not([data-state='complete']) { min-height: max(100svh, 480px); }
+
+/* Reflow the scattered stamps before labels become cramped. */
+@media (min-width: 681px) and (max-width: 1000px), (max-width: 480px) {
+  .passport-stamps { grid-template-columns: repeat(2, minmax(0, 1fr)); grid-template-rows: none; grid-auto-rows: minmax(68px, auto); gap: 10px 8px; padding: 12px 8px; }
+  .passport-stamps li:nth-child(n) { grid-area: auto; --stamp-y: 0px; padding: 10px 8px; min-height: 64px; }
+  .passport-stamps li:nth-child(2n) { --stamp-y: 6px; }
+  .passport-stamps li:nth-child(7) { grid-column: 1 / -1; width: 58%; justify-self: center; }
+}
+
+/* ── In-Flight Entertainment (Projects) ── */
+
+.ife-section {
+  --ife-cream: #faf3e3;
+  --ife-cream-deep: #efe2c8;
+  --ife-cocoa: #4a3326;
+  --ife-cocoa-soft: #7c6552;
+  --ife-ink: #3a281d;
+  --ife-blue: #7691ab;
+  --ife-blue-soft: #c9d8e3;
+  --ife-rose: #c98a92;
+  --ife-rose-soft: #ecd3d6;
+  --ife-lavender: #ab97c4;
+  --ife-lavender-soft: #e2d8ee;
+  --ife-orange: #c98a52;
+  --ife-orange-soft: #ecd3b8;
+  --ife-green: #7fa583;
+  --ife-green-soft: #d3e0d4;
+  --ife-yellow: #c9a34e;
+  --ife-yellow-soft: #ecdfc0;
+  --ife-red: #b9695f;
+  --ife-red-soft: #e6c9c2;
+  --ife-teal: #6fa39a;
+  --ife-teal-soft: #cfe3df;
+  --ife-line: rgba(74, 51, 38, 0.14);
+  max-width: 1180px;
+  margin: 0 auto;
+  padding: 90px 24px 120px;
+  color: var(--ife-ink);
+}
+
+.ife-lead { text-align: center; margin-bottom: 40px; }
+.ife-eyebrow { margin: 0 0 8px; font-size: 12px; letter-spacing: 0.28em; text-transform: uppercase; color: #c7d2e0; }
+.ife-lead h2 { margin: 0; font-size: clamp(28px, 4.4vw, 42px); color: #f7f1e3; }
+
+/* Cabin surround: warm ivory light, faint upholstery weave, soft shadow well */
+.ife-cabin {
+  position: relative;
+  padding: clamp(28px, 6vw, 64px) clamp(16px, 5vw, 56px);
+  border-radius: 32px;
+  overflow: clip;
+  background:
+    radial-gradient(ellipse at 30% 0%, #fffaf0 0%, transparent 55%),
+    radial-gradient(ellipse at 82% 100%, #f6e9d2 0%, transparent 50%),
+    repeating-linear-gradient(125deg, #00000006 0 1px, transparent 1px 7px),
+    linear-gradient(180deg, #f8f0dd 0%, #f1e4c9 100%);
+  box-shadow: inset 0 1px 0 #ffffffa0, inset 0 -30px 60px -35px #6b563a55, 0 30px 60px -30px #4a332633;
+}
+
+/* 3D-tilted seatback screen */
+.seat-screen { position: relative; max-width: 780px; margin: 0 auto; perspective: 1800px; }
+.seat-screen-frame {
+  position: relative;
+  padding: 16px 16px 26px;
+  border-radius: 30px;
+  background: linear-gradient(160deg, #34302c 0%, #211d1a 55%, #151210 100%);
+  box-shadow:
+    0 40px 70px -25px rgba(20, 16, 12, 0.55),
+    0 12px 24px -10px rgba(20, 16, 12, 0.4),
+    inset 0 1px 0 rgba(255, 255, 255, 0.08);
+}
+.seat-screen::after {
+  content: '';
+  position: absolute;
+  left: 8%;
+  right: 8%;
+  bottom: -30px;
+  height: 34px;
+  background: radial-gradient(ellipse, rgba(74, 51, 38, 0.32), transparent 70%);
+  filter: blur(2px);
+  z-index: -1;
+}
+.seat-screen-speaker {
+  position: absolute;
+  top: 6px;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 84px;
+  height: 6px;
+  border-radius: 4px;
+  background-image: radial-gradient(circle, rgba(255, 255, 255, 0.18) 1px, transparent 1px);
+  background-size: 6px 6px;
+  opacity: 0.8;
+}
+.seat-led {
+  position: absolute;
+  top: 8px;
+  right: 18px;
+  width: 5px;
+  height: 5px;
+  border-radius: 50%;
+  background: #8fbf9a;
+  box-shadow: 0 0 4px 1px rgba(143, 191, 154, 0.7);
+}
+.seat-screen-ports {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 14px;
+  padding-top: 6px;
+}
+.seat-port { width: 16px; height: 5px; border-radius: 3px; background: linear-gradient(180deg, #4a453f, #262320); box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.06); }
+.seat-port--power { width: 9px; height: 9px; border-radius: 50%; border: 1.5px solid #55504a; background: #201d1a; }
+.seat-port--jack { width: 7px; height: 7px; border-radius: 50%; background: #100e0c; box-shadow: inset 0 0 0 1.5px #4a453f; }
+
+/* Screen glass */
+.seat-glass {
+  position: relative;
+  border-radius: 18px;
+  overflow: hidden;
+  background: var(--ife-cream);
+  box-shadow: inset 0 0 0 1px rgba(0, 0, 0, 0.35), inset 0 2px 10px rgba(0, 0, 0, 0.25);
+  transition: background 0.6s ease;
+}
+.seat-reflection {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  background: linear-gradient(115deg, rgba(255, 255, 255, 0.16) 0%, transparent 22%, transparent 78%, rgba(255, 255, 255, 0.05) 100%);
+}
+.seat-boot-glow {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  background: radial-gradient(circle at 50% 46%, rgba(255, 252, 240, 0.95), transparent 62%);
+  opacity: 0;
+  transition: opacity 0.3s ease;
+}
+.seat-screen.is-priming .seat-glass { background: #0b0a09; }
+.seat-screen.is-priming .ife-ui { opacity: 0; transform: translateY(10px); }
+.seat-screen.is-booting .seat-boot-glow { opacity: 1; }
+.seat-screen.is-booted .seat-boot-glow { opacity: 0; transition: opacity 0.6s ease 0.25s; }
+
+.ife-ui {
+  position: relative;
+  padding: clamp(14px, 2.6vw, 24px) clamp(14px, 3vw, 26px) clamp(18px, 3vw, 28px);
+  opacity: 1;
+  transform: translateY(0);
+  transition: opacity 0.55s ease 0.25s, transform 0.55s ease 0.25s;
+}
+
+/* Top bar */
+.ife-topbar { display: flex; align-items: baseline; justify-content: space-between; gap: 12px; flex-wrap: wrap; }
+.ife-brand { font: 700 13px/1 'Fredoka', 'Arial Rounded MT Bold', sans-serif; letter-spacing: 0.02em; color: var(--ife-cocoa); }
+.ife-heading { font-size: 10px; letter-spacing: 0.22em; text-transform: uppercase; color: var(--ife-cocoa-soft); }
+.ife-status { display: flex; align-items: center; gap: 10px; }
+.ife-seat { font-size: 10px; letter-spacing: 0.14em; text-transform: uppercase; color: var(--ife-cocoa-soft); }
+.ife-progress { width: 46px; height: 4px; border-radius: 3px; background: var(--ife-cream-deep); overflow: hidden; }
+.ife-progress span { display: block; height: 100%; width: 16%; background: var(--ife-blue); border-radius: inherit; transition: width 0.4s ease; }
+
+.ife-statusline { display: flex; align-items: center; gap: 10px; margin-top: 8px; font-size: 10px; color: var(--ife-cocoa-soft); letter-spacing: 0.04em; }
+.ife-status-item { display: inline-flex; align-items: center; gap: 4px; }
+.ife-dot { width: 5px; height: 5px; border-radius: 50%; background: var(--ife-blue); display: inline-block; }
+
+/* Tabs */
+.ife-tabs { display: flex; gap: 6px; margin-top: 14px; border-bottom: 1px solid var(--ife-line); padding-bottom: 0; }
+.ife-tab {
+  padding: 8px 4px;
+  font-size: 12px;
+  font-weight: 600;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: var(--ife-cocoa-soft);
+  text-decoration: none;
+  border-bottom: 2px solid transparent;
+  margin-bottom: -1px;
+}
+.ife-tab + .ife-tab { margin-left: 6px; }
+.ife-tab:hover, .ife-tab:focus-visible { color: var(--ife-cocoa); }
+.ife-tab.is-active { color: var(--ife-cocoa); border-bottom-color: var(--ife-blue); }
+
+/* Panel: carousel + info */
+.ife-panel { margin-top: 18px; display: flex; flex-direction: column; gap: 18px; }
+
+.ife-carousel-wrap { display: flex; align-items: center; gap: 8px; }
+.ife-arrow {
+  flex: 0 0 auto;
+  width: 30px;
+  height: 30px;
+  border-radius: 50%;
+  border: 1px solid var(--ife-line);
+  background: rgba(255, 255, 255, 0.5);
+  color: var(--ife-cocoa);
+  display: grid;
+  place-items: center;
+  cursor: pointer;
+}
+.ife-arrow:hover:not(:disabled) { background: #fff; border-color: var(--ife-blue); }
+.ife-arrow:disabled { opacity: 0.35; cursor: default; }
+
+.ife-carousel {
+  flex: 1;
+  min-width: 0;
+  display: flex;
+  gap: 12px;
+  margin: 0;
+  padding: 6px 4px 10px;
+  list-style: none;
+  overflow-x: auto;
+  scroll-snap-type: x proximity;
+  touch-action: pan-x;
+  -webkit-overflow-scrolling: touch;
+  scrollbar-width: thin;
+}
+.ife-carousel-wrap { position: relative; }
+.ife-card-item { flex: 0 0 auto; scroll-snap-align: center; }
+
+/* ── Card resize (Transitions.dev) ──
+   Put .t-resize on any element and change its width/height (directly,
+   or via a state class); the transition tweens between the two sizes.
+   Reduced motion is covered by the site's global transition:none override. */
+.t-resize {
+  --resize-dur: 300ms;
+  --resize-ease: cubic-bezier(0.22, 1, 0.36, 1);
+  transition: width var(--resize-dur) var(--resize-ease), height var(--resize-dur) var(--resize-ease);
+  will-change: width, height;
+}
+
+.ife-card {
+  width: 96px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 8px;
+  padding: 6px;
+  background: none;
+  border: 0;
+  cursor: pointer;
+  font: inherit;
+  color: inherit;
+}
+.ife-card-poster {
+  width: 100%;
+  aspect-ratio: 3 / 4;
+  border-radius: 12px;
+  display: grid;
+  place-items: center;
+  box-shadow: 0 6px 14px -8px rgba(58, 40, 29, 0.4), inset 0 0 0 1px rgba(255, 255, 255, 0.14);
+  transition: box-shadow 0.25s ease;
+}
+.ife-card-name {
+  font-family: Georgia, 'Times New Roman', serif;
+  font-size: 11px;
+  line-height: 1.25;
+  text-align: center;
+  color: var(--ife-cocoa-soft);
+}
+.ife-card.is-selected { width: 104px; }
+.ife-card.is-selected .ife-card-poster { box-shadow: 0 0 0 2px var(--ife-cream), 0 0 0 4px var(--ife-blue), 0 10px 20px -10px rgba(58, 40, 29, 0.5); }
+.ife-card.is-selected .ife-card-name { color: var(--ife-cocoa); font-weight: 700; }
+
+.ife-poster--blue { background: linear-gradient(160deg, #a9c0d3 0%, var(--ife-blue) 100%); color: #f2f6f8; }
+.ife-poster--rose { background: linear-gradient(160deg, var(--ife-rose-soft) 0%, var(--ife-rose) 100%); color: #4a2f33; }
+.ife-poster--orange { background: linear-gradient(160deg, var(--ife-orange-soft) 0%, var(--ife-orange) 100%); color: #4a2f1c; }
+.ife-poster--purple { background: linear-gradient(160deg, var(--ife-lavender-soft) 0%, var(--ife-lavender) 100%); color: #382c47; }
+.ife-poster--green { background: linear-gradient(160deg, var(--ife-green-soft) 0%, var(--ife-green) 100%); color: #22321f; }
+.ife-poster--yellow { background: linear-gradient(160deg, var(--ife-yellow-soft) 0%, var(--ife-yellow) 100%); color: #4a3a15; }
+.ife-poster--red { background: linear-gradient(160deg, var(--ife-red-soft) 0%, var(--ife-red) 100%); color: #3d211c; }
+.ife-poster--teal { background: linear-gradient(160deg, var(--ife-teal-soft) 0%, var(--ife-teal) 100%); color: #1e332f; }
+
+/* Now-selected info panel */
+.ife-info {
+  display: grid;
+  grid-template-columns: 110px 1fr;
+  gap: 18px;
+  padding-top: 16px;
+  border-top: 1px solid var(--ife-line);
+}
+.ife-info-art {
+  width: 100%;
+  aspect-ratio: 3 / 4;
+  border-radius: 14px;
+  display: grid;
+  place-items: center;
+  box-shadow: 0 10px 20px -12px rgba(58, 40, 29, 0.45);
+  animation: ife-float 2.8s ease-in-out infinite;
+}
+.ife-info-art svg { width: 34px; height: 34px; }
+
+@keyframes ife-float {
+  0%, 100% { transform: translateY(0); }
+  50% { transform: translateY(-8px); }
+}
+.ife-now-selected { margin: 0 0 4px; font-size: 10px; letter-spacing: 0.2em; text-transform: uppercase; color: var(--ife-blue); font-weight: 700; }
+.ife-info-cat { margin: 0 0 2px; font-size: 11px; letter-spacing: 0.08em; text-transform: uppercase; color: var(--ife-cocoa-soft); }
+.ife-info-title { margin: 0 0 4px; font-family: Georgia, 'Times New Roman', serif; font-size: clamp(20px, 2.6vw, 26px); line-height: 1.15; color: var(--ife-cocoa); }
+.ife-info-role { margin: 0 0 8px; font-size: 12px; font-weight: 600; color: var(--ife-cocoa-soft); }
+.ife-info-desc { margin: 0 0 12px; font-size: 13px; line-height: 1.55; color: var(--ife-ink); max-width: 52ch; }
+.ife-info-skills { list-style: none; display: flex; flex-wrap: wrap; gap: 6px; margin: 0 0 14px; padding: 0; }
+.ife-info-skills li { font-size: 10px; font-weight: 600; letter-spacing: 0.03em; color: var(--ife-cocoa); background: rgba(74, 51, 38, 0.08); border: 1px solid var(--ife-line); padding: 4px 9px; border-radius: 999px; }
+
+.ife-cta { display: inline-flex; align-items: center; gap: 8px; font-size: 13px; font-weight: 700; color: var(--ife-cocoa); text-decoration: none; border-bottom: 1px solid var(--ife-cocoa); padding-bottom: 2px; }
+.ife-cta:hover, .ife-cta:focus-visible { color: var(--ife-blue); border-color: var(--ife-blue); }
+.ife-cta-arrow { transition: transform 0.2s ease; }
+.ife-cta:hover .ife-cta-arrow { transform: translateX(3px); }
+.ife-cta.is-disabled { color: var(--ife-cocoa-soft); border-color: var(--ife-line); cursor: default; pointer-events: none; }
+.ife-cta.is-disabled .ife-cta-arrow { display: none; }
+
+@media (max-width: 760px) {
+  .ife-section { padding: 64px 16px 90px; }
+  .ife-cabin { padding: 24px 12px; border-radius: 24px; }
+  .seat-screen-frame { padding: 12px 10px 20px; border-radius: 24px; }
+  .seat-glass { border-radius: 14px; }
+  .ife-info { grid-template-columns: 84px 1fr; gap: 14px; }
+  .ife-card { width: 82px; }
+  .ife-card.is-selected { width: 89px; }
+  .ife-info-desc { max-width: none; }
+}
+
+@media (max-width: 420px) {
+  .ife-topbar { gap: 6px; }
+  .ife-heading { display: none; }
+  .ife-info { grid-template-columns: 1fr; }
+  .ife-info-art { display: none; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .ife-carousel { scroll-behavior: auto; }
+}
