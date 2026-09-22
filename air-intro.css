@@ -214,7 +214,7 @@ html.air-boarding, body.air-boarding { height: 100%; overflow: hidden; }
 /* Footer sits directly on the night sky here (unlike other pages using styles.css's light --bg). */
 .air-home .site-footer { color: #d6cfc2; border-top-color: rgba(247, 241, 227, 0.18); }
 .air-home .footer-socials a { color: #d6cfc2; border-color: rgba(247, 241, 227, 0.3); }
-.air-home #projects, .air-home #about { scroll-margin-top: 110px; }
+.air-home #projects, .air-home #about, .air-home #experiences { scroll-margin-top: 110px; }
 @media(max-width: 520px) { .air-label-brand { font-size: 13px; } .air-label-sub { font-size: 9px; letter-spacing: .14em; } .air-ticket-main { padding: 24px 20px; } }
 @media(prefers-reduced-motion: reduce) { html { scroll-behavior: auto; } *, *::before, *::after { animation: none !important; transition: none !important; } }
 @keyframes air-arrive { from { opacity: 0; transform: translateY(18px); } to { opacity: 1; transform: translateY(0); } }

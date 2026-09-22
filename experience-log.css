@@ -1,0 +1,255 @@
+/* ── Experience Log (flight-route dashboard) ──
+   Lives in the #experiences section. One cream "flight dashboard" card
+   holds the route strip, a thin divider, and the selected-experience
+   detail panel, so the route reads as the detail panel's own navigation
+   rather than a separate decorative section. Heading text sits directly
+   on the dark sky background, so it stays light like the sections above. */
+
+.explog-section {
+  --explog-cream: #fbf4e6;
+  --explog-cream-deep: #f2e6d0;
+  --explog-ink: #241a12;
+  --explog-cocoa: #4a3326;
+  --explog-cocoa-soft: #7c6552;
+  --explog-blue: #7691ab;
+  --explog-blue-soft: #c9d8e3;
+  --explog-line: rgba(74, 51, 38, 0.16);
+  --explog-shadow: 0 24px 60px rgba(42, 30, 20, 0.22);
+  max-width: 1180px;
+  margin: 0 auto;
+  padding: 90px 24px 110px;
+}
+
+.explog-heading { text-align: center; margin-bottom: 28px; }
+.explog-eyebrow { margin: 0 0 8px; font-size: 12px; letter-spacing: 0.28em; text-transform: uppercase; color: #c7d2e0; }
+.explog-heading h2 {
+  margin: 0 0 10px;
+  font-family: Georgia, 'Times New Roman', serif;
+  font-size: clamp(32px, 5vw, 46px);
+  letter-spacing: 0.02em;
+  text-transform: uppercase;
+  color: #f7f1e3;
+}
+.explog-subtitle { margin: 0; font-style: italic; font-size: 15px; color: #d7cfc0; }
+
+/* ── One connected dashboard card ── */
+.explog-dashboard {
+  background: var(--explog-cream);
+  border: 1px solid var(--explog-line);
+  border-radius: 26px;
+  padding: clamp(20px, 3vw, 30px) clamp(18px, 4vw, 40px) clamp(20px, 3vw, 28px);
+  box-shadow: var(--explog-shadow);
+}
+
+/* ── Route header (compact) ── */
+.explog-route-header { position: relative; padding-top: 4px; }
+
+.explog-route { position: relative; width: 100%; aspect-ratio: 1000 / 160; max-height: 185px; margin: 0 auto; }
+.explog-route-svg { position: absolute; inset: 0; width: 100%; height: 100%; overflow: visible; }
+.explog-route-line { fill: none; stroke-linecap: round; }
+.explog-route-line--bg { stroke: var(--explog-line); stroke-width: 3; }
+.explog-route-line--fill {
+  stroke: var(--explog-blue);
+  stroke-width: 3;
+  transition: stroke-dashoffset 0.85s cubic-bezier(0.22, 1, 0.36, 1);
+}
+
+.explog-plane {
+  position: absolute;
+  left: 0;
+  top: 0;
+  width: 24px;
+  height: 24px;
+  color: var(--explog-cocoa);
+  filter: drop-shadow(0 3px 5px rgba(74, 51, 38, 0.35));
+  transition: left 0.85s cubic-bezier(0.22, 1, 0.36, 1), top 0.85s cubic-bezier(0.22, 1, 0.36, 1),
+    transform 0.85s cubic-bezier(0.22, 1, 0.36, 1);
+  transform: translate(-50%, -50%) rotate(0deg);
+  will-change: left, top, transform;
+}
+.explog-plane svg { width: 100%; height: 100%; }
+.explog-plane.is-taxiing { transition: none; }
+
+.explog-stops { position: absolute; inset: 0; list-style: none; margin: 0; padding: 0; }
+.explog-stop-item { display: contents; }
+
+.explog-stop {
+  position: absolute;
+  left: 0;
+  top: 0;
+  width: 36px;
+  height: 36px;
+  transform: translate(-50%, -50%);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: none;
+  border: none;
+  padding: 0;
+  cursor: pointer;
+  font: inherit;
+}
+
+.explog-stop-dot {
+  width: 12px;
+  height: 12px;
+  border-radius: 50%;
+  background: var(--explog-cream);
+  border: 2px solid var(--explog-cocoa);
+  transition: background-color 0.3s ease, border-color 0.3s ease, transform 0.3s ease, box-shadow 0.3s ease;
+}
+.explog-stop.is-active .explog-stop-dot {
+  background: var(--explog-blue);
+  border-color: var(--explog-blue);
+  transform: scale(1.2);
+  box-shadow: 0 0 0 5px var(--explog-blue-soft);
+}
+
+.explog-stop-label {
+  position: absolute;
+  left: 50%;
+  transform: translateX(-50%);
+  font-size: 12px;
+  font-weight: 800;
+  letter-spacing: 0.03em;
+  text-transform: uppercase;
+  white-space: nowrap;
+  color: var(--explog-cocoa);
+}
+.explog-stop.label-above .explog-stop-label { bottom: calc(100% + 6px); }
+.explog-stop.label-below .explog-stop-label { top: calc(100% + 6px); }
+.explog-stop.is-active .explog-stop-label { color: var(--explog-blue); }
+
+.explog-progress-text {
+  position: absolute;
+  top: 0;
+  right: 0;
+  margin: 0;
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: var(--explog-cocoa-soft);
+}
+
+/* ── Divider ── */
+.explog-divider { margin-top: 8px; border-top: 1px solid var(--explog-line); }
+
+/* ── Detail panel ── */
+.explog-detail { margin-top: 26px; }
+
+.explog-viewport { touch-action: pan-y; }
+.explog-viewport:focus-visible { outline: 2px solid var(--explog-blue); outline-offset: 4px; border-radius: 12px; }
+
+.explog-slide {
+  display: grid;
+  grid-template-columns: minmax(160px, 220px) 1fr;
+  gap: clamp(22px, 4vw, 42px);
+  align-items: center;
+  opacity: 1;
+  transform: translateY(0);
+  transition: opacity 0.3s ease, transform 0.3s ease;
+}
+.explog-slide.is-changing { opacity: 0; transform: translateY(10px); }
+
+.explog-frame {
+  aspect-ratio: 1 / 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: #ffffff;
+  border: 1px solid var(--explog-line);
+  border-radius: 20px;
+  padding: 16%;
+}
+.explog-frame img {
+  max-width: 100%;
+  max-height: 100%;
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
+}
+
+.explog-content { min-width: 0; }
+.explog-cat { margin: 0 0 6px; font-size: 11px; font-weight: 700; letter-spacing: 0.14em; text-transform: uppercase; color: var(--explog-blue); }
+.explog-title { margin: 0 0 4px; font-family: Georgia, 'Times New Roman', serif; font-size: clamp(19px, 2.2vw, 25px); line-height: 1.18; color: var(--explog-cocoa); }
+.explog-role { margin: 0 0 2px; font-size: 14px; font-weight: 700; color: var(--explog-ink); }
+.explog-meta { margin: 0 0 14px; font-style: italic; font-size: 12px; font-weight: 600; color: var(--explog-cocoa); padding-bottom: 12px; border-bottom: 1px solid var(--explog-line); }
+.explog-desc { margin: 0 0 16px; font-size: 14px; line-height: 1.7; color: var(--explog-ink); max-width: 60ch; }
+.explog-desc em { color: var(--explog-cocoa); font-style: italic; }
+
+.explog-tags { list-style: none; display: flex; flex-wrap: wrap; gap: 8px; margin: 0; padding: 0; }
+.explog-tags li {
+  font-size: 11px;
+  font-weight: 600;
+  letter-spacing: 0.03em;
+  color: var(--explog-cocoa);
+  background: rgba(74, 51, 38, 0.08);
+  border: 1px solid var(--explog-line);
+  padding: 5px 11px;
+  border-radius: 999px;
+}
+
+.explog-closing { margin-top: 22px; padding-top: 18px; border-top: 1px solid var(--explog-line); }
+.explog-closing-title { margin: 0 0 4px; font-family: Georgia, 'Times New Roman', serif; font-size: 18px; color: var(--explog-cocoa); }
+.explog-closing-subtitle { margin: 0 0 14px; font-style: italic; font-size: 13px; color: var(--explog-cocoa-soft); max-width: 58ch; }
+.explog-closing-actions { display: flex; flex-wrap: wrap; align-items: center; gap: 20px; }
+.explog-resume-link {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 13px;
+  font-weight: 700;
+  color: var(--explog-cocoa);
+  text-decoration: none;
+  border-bottom: 1px solid var(--explog-cocoa);
+  padding-bottom: 2px;
+}
+.explog-resume-link:hover, .explog-resume-link:focus-visible { color: var(--explog-blue); border-color: var(--explog-blue); }
+.explog-resume-link span { transition: transform 0.2s ease; }
+.explog-resume-link:hover span { transform: translateX(3px); }
+
+/* ── In-card navigation controls (bottom right) ── */
+.explog-nav-controls {
+  display: flex;
+  justify-content: flex-end;
+  gap: 10px;
+  margin-top: 22px;
+  padding-top: 16px;
+  border-top: 1px solid var(--explog-line);
+}
+
+.explog-navbtn {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 0.05em;
+  text-transform: uppercase;
+  color: var(--explog-cocoa);
+  background: rgba(74, 51, 38, 0.06);
+  border: 1px solid var(--explog-line);
+  border-radius: 999px;
+  padding: 9px 15px;
+  cursor: pointer;
+  transition: background-color 0.2s ease, border-color 0.2s ease, opacity 0.2s ease;
+}
+.explog-navbtn:hover:not(:disabled), .explog-navbtn:focus-visible { background: rgba(74, 51, 38, 0.12); border-color: var(--explog-blue); }
+.explog-navbtn:disabled { opacity: 0.35; cursor: default; }
+.explog-navbtn[hidden] { display: none; }
+
+@media (max-width: 760px) {
+  .explog-section { padding: 64px 16px 90px; }
+  .explog-dashboard { padding: 18px 16px 20px; border-radius: 20px; }
+  .explog-stop-label { display: none; }
+  .explog-stop.is-active .explog-stop-label { display: block; font-size: 10px; }
+  .explog-progress-text { font-size: 10px; }
+  .explog-slide { grid-template-columns: 1fr; }
+  .explog-frame { max-width: 200px; margin: 0 auto; }
+  .explog-nav-controls { justify-content: space-between; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .explog-plane { transition: none; }
+}
