@@ -3,13 +3,17 @@
   if (reduceMotion) return;
 
   const sky = document.querySelector('.air-sky');
-  const intro = document.querySelector('.air-intro');
-  if (!sky || !intro) return;
+  // The boarding section (#home) drives the first star: it fires while the
+  // window is opening. In Fast track it simply fires shortly after load.
+  const intro = document.querySelector('[data-cabin]');
+  if (!sky) return;
 
   let heroVisible = false;
   let firstStarDone = false;
 
-  if ('IntersectionObserver' in window) {
+  if (!intro) {
+    heroVisible = true;
+  } else if ('IntersectionObserver' in window) {
     const io = new IntersectionObserver(
       (entries) => {
         entries.forEach((entry) => {
@@ -77,11 +81,12 @@
     if (firstStarDone) return;
     if (state === 'opening') {
       runFirstStar(900, { constrained: true });
-    } else if (state === 'complete') {
+    } else if (state === 'flight' || state === 'complete') {
       runFirstStar(800 + Math.random() * 700, { constrained: false });
     }
   }
 
+  if (!intro || document.documentElement.dataset.fast === 'on') { runFirstStar(1500, { constrained: false }); return; }
   handleState(intro.dataset.state);
   if (!firstStarDone) {
     const stateObserver = new MutationObserver(() => {

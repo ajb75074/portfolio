@@ -1,6 +1,34 @@
 import * as THREE from 'three';
 import { GLTFLoader } from 'three/addons/loaders/GLTFLoader.js';
 
+function paneTexture() {
+  const w = 256, h = 400, canvas = document.createElement('canvas');
+  canvas.width = w; canvas.height = h;
+  const ctx = canvas.getContext('2d');
+  // Seal shadow around the edge.
+  const edge = ctx.createRadialGradient(w / 2, h / 2, h * .28, w / 2, h / 2, h * .56);
+  edge.addColorStop(0, 'rgba(20, 28, 44, 0)'); edge.addColorStop(1, 'rgba(20, 28, 44, .32)');
+  ctx.fillStyle = edge; ctx.fillRect(0, 0, w, h);
+  // Two diagonal reflections of the cabin lights.
+  ctx.save(); ctx.translate(w / 2, h / 2); ctx.rotate(-.55);
+  for (const [x, width, alpha] of [[-70, 46, .13], [-12, 14, .08], [60, 26, .05]]) {
+    const band = ctx.createLinearGradient(x - width, 0, x + width, 0);
+    band.addColorStop(0, 'rgba(255, 250, 238, 0)'); band.addColorStop(.5, `rgba(255, 250, 238, ${alpha})`); band.addColorStop(1, 'rgba(255, 250, 238, 0)');
+    ctx.fillStyle = band; ctx.fillRect(x - width, -h, width * 2, h * 2);
+  }
+  ctx.restore();
+  // Frost creeping up from the bottom seal.
+  let seed = 7; const rand = () => (seed = (seed * 16807) % 2147483647) / 2147483647;
+  for (let i = 0; i < 900; i++) {
+    const x = rand() * w, y = h - Math.pow(rand(), 2.6) * h * .22, r = rand() * 1.4 + .3;
+    ctx.fillStyle = `rgba(236, 244, 255, ${(.05 + rand() * .22) * (1 - (h - y) / (h * .22))})`;
+    ctx.beginPath(); ctx.arc(x, y, r, 0, Math.PI * 2); ctx.fill();
+  }
+  const texture = new THREE.CanvasTexture(canvas);
+  texture.colorSpace = THREE.SRGBColorSpace;
+  return texture;
+}
+
 export async function createWindow(host, onOpen) {
   const gltf = await new GLTFLoader().loadAsync('./public/models/air-window.glb');
   const renderer = new THREE.WebGLRenderer({ alpha: true, antialias: true });
@@ -65,6 +93,19 @@ export async function createWindow(host, onOpen) {
   shade.add(panel);
   const handle = new THREE.Mesh(new THREE.CapsuleGeometry(.045, .32, 5, 12), new THREE.MeshStandardMaterial({ color: 0xd6c4a6, roughness: .3 }));
   handle.rotation.z = Math.PI / 2; handle.position.set(0, -1.15, .085); shade.add(handle);
+  // Acrylic window pane behind the shade: faint cabin-light reflections, a
+  // darkened edge where the pane meets its seal, and a little frost along the
+  // bottom edge. It fades out as the window zooms open (see render).
+  const pane = new THREE.Mesh(new THREE.ShapeGeometry(new THREE.Shape(boundary.map(p => p.clone().multiplyScalar(.99)))),
+    new THREE.MeshBasicMaterial({ map: paneTexture(), transparent: true, depthWrite: false }));
+  {
+    const uv = pane.geometry.attributes.uv, pos = pane.geometry.attributes.position;
+    let minX = Infinity, maxX = -Infinity, minY = Infinity, maxY = -Infinity;
+    for (let i = 0; i < pos.count; i++) { minX = Math.min(minX, pos.getX(i)); maxX = Math.max(maxX, pos.getX(i)); minY = Math.min(minY, pos.getY(i)); maxY = Math.max(maxY, pos.getY(i)); }
+    for (let i = 0; i < pos.count; i++) uv.setXY(i, (pos.getX(i) - minX) / (maxX - minX), (pos.getY(i) - minY) / (maxY - minY));
+    uv.needsUpdate = true;
+  }
+  pane.position.z = -.45; group.add(pane);
   // Extend the cabin beyond the exported wall for ultrawide screens.
   const surround = new THREE.Shape([new THREE.Vector2(-100,-100),new THREE.Vector2(100,-100),new THREE.Vector2(100,100),new THREE.Vector2(-100,100)]);
   surround.holes.push(new THREE.Path(boundary));
@@ -73,7 +114,13 @@ export async function createWindow(host, onOpen) {
   const extension = new THREE.Mesh(new THREE.ShapeGeometry(surround), wallMaterial);
   extension.position.z = -.305; group.add(extension);
   let disposed = false, frame = 0, tween, pending;
-  const render = () => { if (!disposed) renderer.render(scene, camera); };
+  const render = () => {
+    if (disposed) return;
+    // Fade the pane details as the cabin scales past the camera, so frost and
+    // reflections never balloon into large specks mid-zoom.
+    pane.material.opacity = Math.max(0, 1 - (group.scale.x - 1) / 1.2);
+    renderer.render(scene, camera);
+  };
   function resize() {
     const width = host.clientWidth, height = host.clientHeight;
     const aspect = width / Math.max(height, 1);
@@ -130,13 +177,28 @@ export async function createWindow(host, onOpen) {
       const scale = Math.max(camera.right / .65, camera.top / 1.1) * 1.3;
       await animate(group.scale, { x: scale, y: scale, z: 1 }, 1.8);
     },
+    // Scroll-driven version of open(): p 0-.4 raises the shade, .4-1 scales the
+    // cabin wall past the camera. Fully reversible, so scrolling back up closes it.
+    setProgress(p) {
+      if (disposed) return;
+      const clamp = v => Math.min(1, Math.max(0, v));
+      const smooth = t => t * t * (3 - 2 * t);
+      const raise = smooth(clamp(p / .4));
+      const zoom = clamp((p - .4) / .6);
+      shade.position.y = 3.4 * raise;
+      const target = Math.max(camera.right / .65, camera.top / 1.1) * 1.3;
+      // Ease in hard so the approach feels like leaning toward the glass.
+      const scale = 1 + (target - 1) * zoom * zoom;
+      group.scale.set(scale, scale, 1);
+      render();
+    },
     dispose() {
       disposed = true; tween?.kill(); cancelAnimationFrame(frame); pending?.(); observer.disconnect();
       renderer.domElement.removeEventListener('click', click);
       renderer.domElement.removeEventListener('webglcontextlost', lost);
       const geometries = new Set(), materials = new Set();
       scene.traverse(node => { if (node.geometry) geometries.add(node.geometry); if (node.material) materials.add(node.material); });
-      geometries.forEach(g => g.dispose()); materials.forEach(m => m.dispose());
+      geometries.forEach(g => g.dispose()); materials.forEach(m => { m.map?.dispose(); m.dispose(); });
       renderer.dispose(); renderer.domElement.remove();
     }
   };

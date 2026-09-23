@@ -75,3 +75,108 @@ wordmark, lavender boarding label, serif details, cobalt action, curved
 perforation, miniature window and barcode. The stub hides on mobile. Existing
 window scene, landscape, passport and project content are unchanged. Browser
 visual verification is recorded as blocked in `design-qa.md`.
+
+### Realistic cruise view (window-seat pass)
+
+- `air-clouds.js`: paints three tileable, moonlit cloud-deck textures on a
+  canvas at load (no downloads) and hands them to CSS as blob URLs. Also sets
+  `--wing-sink` on scroll so the wing settles lower and dims past the hero.
+- `air-intro.css`: the flat hills are replaced by a night sky, horizon haze,
+  moon glint on the cloud tops, three parallax cloud layers drifting toward the
+  tail, and an SVG port wing (seat 01A). During the intro the wing leans into the window
+  aperture; it settles back when the boarding pass appears. Cabin lighting
+  (warm reading light + dim corners) sits over the 3D wall during the intro.
+- `air-scene.js`: adds an acrylic pane behind the shade with cabin-light
+  reflections, seal shadow, bottom-edge frost and a breather hole.
+- `air-cabin-sound.js` + header button: optional engine drone and vent hiss
+  synthesized with Web Audio. Off by default; pauses in background tabs.
+- Reduced motion: drift, flex and the wing transition are disabled.
+
+### Day / night sky
+
+- An inline script in `<head>` sets `html[data-sky]` before first paint: the
+  visitor's saved choice (`avanie-air-sky` in localStorage), otherwise their
+  local time (day 6am–7pm).
+- The sun/moon button in the header flips it (with a View Transition
+  crossfade where supported) and remembers the choice.
+- Day: deep high-altitude blue, the moon element restyled as the sun, sunlit
+  white clouds (`air-clouds.js` paints a day palette and caches both sets), a
+  white wing, no stars, and a soft shadow on cream headings for contrast.
+
+### Boarding story (scroll to seat)
+
+`#home` is one scroll-driven sequence (`air-cabin.js` + `air-cabin.css`):
+
+1. **Door**: the boarding pass sits in boarding door 2L.
+2. **Aisle**: six rows drawn on a `<canvas>` by a small perspective renderer in
+   `air-cabin.js` (near-plane clipping, back-face culling, painter's order).
+   No DOM 3D, so no seams or gaps. Five cabin announcements (the `<ol
+   data-cabin-announce>` in `index.html`, edit freely) introduce you on the way.
+3. **Seat 01A**: the seat is the menu. The tablet on the tray opens the real
+   in-flight entertainment (Projects), the seat pocket holds Experience,
+   Latest trip and Resume, the passport opens About, the call button opens
+   Contact. Items open in a panel over the seat (the section itself is moved
+   into the panel and put back on close), so nothing navigates away. Header
+   links for Projects and About do the same.
+4. **Scroll in, not out**: once you reach the seat, the door and aisle leave
+   the scroll range for this visit (sessionStorage `avanie-air-boarded`).
+   "Board again from the door" replays it.
+5. **Window**: keep scrolling and the view leans into the window; the
+   Three.js window (`air-scene.js` `setProgress`) opens and zooms out.
+6. **Flight**: the rest of the page scrolls over the sky, with cloud parallax.
+
+**Fast track** (header button, or `?fast=1`) skips all of it and is
+remembered; reduced-motion visitors get it by default. With cabin sound on, a
+seatbelt chime plays when you sit. `air-intro.js` is no longer loaded and can
+be deleted.
+
+### Homepage refinement (positioning + IA)
+
+- Positioning: "UX / Product Designer & Software Engineer" on the boarding pass,
+  in the single welcome announcement, and in the Passenger Passport.
+- Latest Trip postcard: Wishlist as an editorial pick, with an
+  "Explore case study →" CTA plus Design / Engineering tracks.
+- In-flight entertainment (`#projects`): the original poster carousel and
+  "Now selected" panel; Wishlist is first with a "Now playing" badge.
+- Flight Log (`#experiences`, `experience-log.js`): the original Experience
+  Log is the first thing out the window. While it is pinned, scrolling glides
+  the plane along the route from stop to stop (compact layout in `ife.css`;
+  it falls back to click/arrow mode if a screen is too short). The "Next
+  destination" note sits just after it.
+- Seat items open as a full-page sheet that scrolls like the page.
+- Passenger Passport: 8 rubber-stamp impressions in priority order (speckled
+  ink mask, rounded/oval shapes, a small second line on each).
+
+### Two modes
+
+- **Cabin (default):** door → aisle → seat 01A → window → Flight Log → back
+  inside. The Latest Trip, Projects and Passport sections are not in the page
+  flow here; they open from the seat. At the end of the Flight Log, scrolling
+  on (or "Return to seat 01A") jumps to the open window and eases back into
+  the seat.
+- **Fast track / recruiter mode (`?fast=1`):** the original homepage in its
+  original order (boarding pass, Latest Trip, In-Flight Entertainment,
+  Experience Log with Previous/Next, Passport, footer) over the new sky. By
+  day, section headings sit on a soft dark plate so cream text stays readable.
+- Flight Log map: an archipelago drawn under the route (`experience-log.js`,
+  seeded so it is stable): an island per stop, islets, hills, palms, waves and
+  a compass rose. Previous/Next stay available while gliding.
+- Cabin: 2+2 layout, four rows, seat pairs drawn as one silhouette with
+  attached armrests and floor shadows; row placards show only the row number
+  and seat letters (04 AB / 04 CD … 01). NMI Dossier removed from the nav.
+
+### Seat 01A headliner + recruiter mode naming
+
+- The seat view's top strip is now a quiet inset cream headliner with two
+  recessed reading lights: no text or controls.
+- A status chip under the AVANIE AIR mark reads
+  "SEAT 01A · UX / PRODUCT DESIGNER & SOFTWARE ENGINEER".
+- Contact is an outlined pill at the end of the header (opens the contact
+  sheet in the cabin, scrolls to the footer in recruiter mode). On phones the
+  header has two rows: links, then controls.
+- "Fast track" is now labelled "Recruiter mode".
+- Scroll hints: a small light label at the bottom says what scrolling does at
+  each step (board, find your seat, look outside, open the window, fly
+  through the Flight Log, head back inside).
+- Postcard: two equal case-study buttons (Product Design / UX, Software
+  Engineering); it keeps its landscape width in recruiter mode.

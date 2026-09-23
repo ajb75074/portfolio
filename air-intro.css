@@ -1,8 +1,79 @@
 /* One fixed landscape stays behind both the transparent scene and the HTML site. */
 body.air-home { background: #2e4666; isolation: isolate; }
-.air-sky { position: fixed; inset: 0; z-index: -1; pointer-events: none; background: linear-gradient(#2e4666 0%, #5c7ca0 55%, #e9efef 100%); overflow: hidden; }
-.air-sky::before, .air-sky::after { content: ''; position: absolute; width: 120%; left: -10%; height: 35%; bottom: -2%; border-radius: 50% 70% 0 0; background: #8b8c88; transform: rotate(-8deg); }
-.air-sky::after { bottom: -13%; background: #463f3d; transform: rotate(9deg); }
+.air-sky {
+  --horizon: 63%;
+  position: fixed; inset: 0; z-index: -1; pointer-events: none; overflow: hidden;
+  /* Night sky at cruising altitude: deep zenith, lighter band just above the horizon. */
+  background: linear-gradient(#1b2b47 0%, #2e4666 32%, #4f6d93 52%, #7f98b6 var(--horizon), #7f98b6 100%);
+}
+
+/* ── Cloud deck (undercast) ─────────────────────────────────────────────
+   Three perspective layers drift toward the tail. Seat 01A faces port, so the
+   nose is to the viewer's right and the scenery streams right-to-left.
+   air-clouds.js fills --cloud-far/mid/near with generated tileable textures. */
+.air-deck {
+  position: absolute; left: 0; right: 0; top: var(--horizon); bottom: 0;
+  background: linear-gradient(#7f98b6 0%, #8a9fbc 7%, #7187a6 22%, #4f6485 58%, #36465f 100%);
+}
+.air-deck-layer { position: absolute; left: 0; right: 0; overflow: hidden; }
+.air-deck-layer--far { top: -1.5%; height: 22%; opacity: .75; }
+.air-deck-layer--mid { top: 10%; height: 42%; opacity: .9; }
+.air-deck-layer--near { top: 38%; bottom: -4%; }
+.air-deck-strip {
+  position: absolute; top: 0; bottom: 0; left: 0; width: 200%;
+  background-repeat: repeat-x; background-position: 0 0;
+  will-change: transform;
+  animation: air-drift var(--drift, 120s) linear infinite;
+  opacity: 0; transition: opacity 1.2s ease;
+}
+.air-deck-layer[data-ready] .air-deck-strip { opacity: 1; }
+.air-deck-layer--far .air-deck-strip { --drift: 240s; background-image: var(--cloud-far, none); background-size: 50% 100%; }
+.air-deck-layer--mid .air-deck-strip { --drift: 130s; background-image: var(--cloud-mid, none); background-size: 50% 100%; }
+.air-deck-layer--near .air-deck-strip { --drift: 70s; background-image: var(--cloud-near, none); background-size: 50% 100%; }
+@keyframes air-drift { to { transform: translate3d(-50%, 0, 0); } }
+/* Moonlight glinting across the cloud tops, directly below the moon. */
+.air-deck-moonpath {
+  position: absolute; left: 50%; top: 0; width: min(70vw, 900px); height: 70%; transform: translateX(-50%);
+  background: radial-gradient(ellipse 50% 60% at 50% 0%, rgba(246, 240, 222, .38), rgba(246, 240, 222, .12) 45%, transparent 75%);
+  mix-blend-mode: screen;
+  -webkit-mask-image: linear-gradient(transparent, #000 14%); mask-image: linear-gradient(transparent, #000 14%);
+}
+/* Atmospheric haze sitting on the horizon line. */
+.air-haze {
+  position: absolute; left: 0; right: 0; top: calc(var(--horizon) - 9%); height: 16%;
+  background: linear-gradient(transparent, rgba(186, 201, 222, .38) 55%, rgba(186, 201, 222, .1) 80%, transparent);
+}
+
+/* ── Wing ───────────────────────────────────────────────────────────── */
+.air-wing {
+  position: absolute; right: 0; bottom: 0;
+  width: min(68vw, 1100px); height: auto; max-height: 62%;
+  overflow: visible;
+  /* --wing-sink (0-1) is set on scroll by air-clouds.js: the wing settles
+     lower and dims once the visitor leaves the hero, so it never fights content. */
+  transform: translate3d(0, calc(var(--wing-sink, 0) * 35%), 0);
+  opacity: calc(1 - var(--wing-sink, 0) * .6);
+  transition: transform 1.6s cubic-bezier(.3, .7, .2, 1);
+}
+/* While the window intro is up, lean the wing into the aperture — the classic
+   window-seat shot — then let it settle back when the boarding pass appears. */
+.air-boarding .air-wing { transform: translate3d(7vw, -15vh, 0) scale(1.06); }
+@media (min-width: 761px) and (max-aspect-ratio: 1/1) { .air-boarding .air-wing { transform: translate3d(10vw, -34vh, 0) scale(1.06); } }
+.air-wing-body { transform-box: view-box; transform-origin: 100% 80%; animation: air-flex 7s ease-in-out infinite; }
+.air-wing-edge { fill: none; stroke: #c9d4e6; stroke-opacity: .55; stroke-width: 1.4; }
+.air-wing-panels path { fill: none; stroke: #151b26; stroke-opacity: .5; stroke-width: 1.3; }
+/* Slow wing flex, like riding light chop. */
+@keyframes air-flex { 0%, 100% { transform: translateY(0) rotate(0deg); } 50% { transform: translateY(-2px) rotate(-.25deg); } }
+
+@media (max-width: 760px) {
+  .air-sky { --horizon: 66%; }
+  .air-wing { width: 108vw; right: -8vw; max-height: 44%; }
+  .air-boarding .air-wing { transform: translate3d(22vw, -26vh, 0); }
+}
+@media (prefers-reduced-motion: reduce) {
+  .air-deck-strip, .air-wing-body { animation: none; }
+  .air-wing { transition: none; }
+}
 
 .air-moon {
   position: absolute;
@@ -82,6 +153,16 @@ body.air-home { background: #2e4666; isolation: isolate; }
 .air-stage { position: absolute; inset: 0; z-index: 2; }
 .air-stage canvas { width: 100%; height: 100%; display: block; cursor: pointer; }
 .air-intro[data-state='loading'] .air-stage { background: #eee7da; }
+/* Cabin lighting over the 3D wall: a warm overhead reading light from the
+   upper left and the dimmer, cooler corners of a cabin at night. */
+.air-intro::after {
+  content: ''; position: absolute; inset: 0; z-index: 2; pointer-events: none;
+  background:
+    radial-gradient(ellipse 55% 45% at 28% 0%, rgba(255, 226, 170, .28), transparent 70%),
+    radial-gradient(ellipse 120% 90% at 50% 45%, transparent 55%, rgba(62, 48, 32, .28) 100%);
+  opacity: 0; transition: opacity .8s ease;
+}
+.air-intro:is([data-state='ready'], [data-state='opening'])::after { opacity: 1; }
 .air-controls { position: absolute; z-index: 3; bottom: 62px; left: 20px; right: 20px; text-align: center; }
 .air-label { position: absolute; top: clamp(24px, 5svh, 48px); left: 24px; right: 24px; margin: 0; z-index: 3; display: flex; align-items: baseline; justify-content: center; flex-wrap: wrap; gap: 10px; }
 .air-label-brand { font-family: 'Fredoka', 'Arial Rounded MT Bold', sans-serif; font-weight: 600; font-size: 15px; letter-spacing: .02em; color: #51402c; }
@@ -916,3 +997,161 @@ html.air-boarding, body.air-boarding { height: 100%; overflow: hidden; }
 @media (prefers-reduced-motion: reduce) {
   .ife-carousel { scroll-behavior: auto; }
 }
+
+/* Cabin sound toggle in the header. */
+.air-home .nav-links { align-items: center; }
+.cabin-sound {
+  display: inline-grid; place-items: center; width: 34px; height: 34px; padding: 0;
+  border: 1px solid rgba(40, 32, 24, .18); border-radius: 50%; background: transparent;
+  color: var(--text, #2b2118); cursor: pointer; transition: background .2s ease, border-color .2s ease;
+}
+.cabin-sound:hover { background: rgba(40, 32, 24, .06); }
+.cabin-sound:focus-visible { outline: 2px solid #5a6fd6; outline-offset: 2px; }
+.cabin-sound svg path { fill: none; stroke: currentColor; stroke-width: 1.6; stroke-linecap: round; stroke-linejoin: round; }
+.cabin-sound .cabin-sound-speaker { fill: currentColor; }
+.cabin-sound .cabin-sound-waves { display: none; }
+.cabin-sound[aria-pressed='true'] { background: #d8c5e9; border-color: #b7a2cc; }
+.cabin-sound[aria-pressed='true'] .cabin-sound-waves { display: inline; }
+.cabin-sound[aria-pressed='true'] .cabin-sound-off { display: none; }
+.air-home .nav-links a { white-space: nowrap; }
+@media (max-width: 420px) {
+  .cabin-sound { width: 30px; height: 30px; }
+  .air-home .nav-links { gap: .7rem; }
+  .air-home .nav-links a { font-size: .82rem; }
+  .air-home .brand-logo { width: 54px; }
+}
+
+/* ── Day sky ─────────────────────────────────────────────────────────────
+   html[data-sky] is set before first paint (inline script in index.html) and
+   switched by the header toggle in air-clouds.js. Night is the base styling
+   above; day overrides it. At cruising altitude the daytime sky is a deep,
+   saturated blue that pales into white haze at the horizon. */
+html[data-sky='day'] body.air-home { background: #2a67ad; }
+html[data-sky='day'] .air-sky { background: linear-gradient(#1c579f 0%, #2f72bb 30%, #5a97d2 50%, #a9cbeb var(--horizon), #a9cbeb 100%); }
+html[data-sky='day'] .air-star,
+html[data-sky='day'] .air-shooting-star { display: none; }
+/* The moon element becomes the sun. */
+html[data-sky='day'] .air-moon {
+  background: radial-gradient(circle, #ffffff 0%, #fffdf4 55%, #fff4d6 100%);
+  box-shadow: 0 0 40px 16px rgba(255, 252, 238, .75), 0 0 140px 60px rgba(255, 244, 214, .35), 0 0 320px 140px rgba(255, 244, 214, .16);
+}
+html[data-sky='day'] .air-moon::before { display: none; }
+html[data-sky='day'] .air-deck { background: linear-gradient(#a9cbeb 0%, #cfe0f1 7%, #bcd2ea 25%, #9fbcdd 60%, #86a6cf 100%); }
+html[data-sky='day'] .air-deck-moonpath { background: radial-gradient(ellipse 50% 60% at 50% 0%, rgba(255, 250, 232, .6), rgba(255, 250, 232, .18) 45%, transparent 75%); }
+html[data-sky='day'] .air-haze { background: linear-gradient(transparent, rgba(236, 244, 252, .55) 55%, rgba(236, 244, 252, .15) 80%, transparent); }
+/* A white airliner wing in full sun. */
+html[data-sky='day'] .wing-s1 { stop-color: #f4f6f9; }
+html[data-sky='day'] .wing-s2 { stop-color: #c9d1dc; }
+html[data-sky='day'] .wing-s3 { stop-color: #8691a3; }
+html[data-sky='day'] .winglet-s1 { stop-color: #ffffff; }
+html[data-sky='day'] .winglet-s2 { stop-color: #b4bfcd; }
+html[data-sky='day'] .air-wing-edge { stroke: #ffffff; stroke-opacity: .9; }
+html[data-sky='day'] .air-wing-panels path { stroke: #5d6878; stroke-opacity: .35; }
+/* Cabin is brighter by day: softer corners, cooler daylight through the wall. */
+html[data-sky='day'] .air-intro::after {
+  background:
+    radial-gradient(ellipse 60% 50% at 50% 42%, rgba(255, 252, 240, .22), transparent 70%),
+    radial-gradient(ellipse 120% 90% at 50% 45%, transparent 60%, rgba(62, 48, 32, .16) 100%);
+}
+/* Keep cream headings readable against the lighter sky. */
+html[data-sky='day'] :is(.postcard-lead, .ife-lead, .explog-heading, .passport-heading, .air-home .site-footer) { text-shadow: 0 1px 2px rgba(10, 36, 72, .35), 0 2px 18px rgba(10, 36, 72, .45); }
+
+/* Day/night toggle in the header (matches the cabin sound button). */
+.sky-toggle {
+  display: inline-grid; place-items: center; width: 34px; height: 34px; padding: 0;
+  border: 1px solid rgba(40, 32, 24, .18); border-radius: 50%; background: transparent;
+  color: var(--text, #2b2118); cursor: pointer; transition: background .2s ease;
+}
+.sky-toggle:hover { background: rgba(40, 32, 24, .06); }
+.sky-toggle:focus-visible { outline: 2px solid #5a6fd6; outline-offset: 2px; }
+.sky-toggle svg * { fill: none; stroke: currentColor; stroke-width: 1.6; stroke-linecap: round; stroke-linejoin: round; }
+.sky-toggle .sky-icon-moon { fill: currentColor; }
+/* Show the icon of the current sky. */
+html[data-sky='day'] .sky-icon-moon, html[data-sky='night'] .sky-icon-sun { display: none; }
+@media (max-width: 420px) { .sky-toggle { width: 30px; height: 30px; } .air-home .nav-links { gap: .55rem; } }
+/* Crossfade the whole page when the sky changes (where supported). */
+::view-transition-old(root), ::view-transition-new(root) { animation-duration: .7s; }
+/* Narrow phones: let the two cabin buttons drop to a second row. */
+@media (max-width: 380px) {
+  .air-home .nav-links { flex-wrap: wrap; justify-content: flex-end; row-gap: .4rem; column-gap: .6rem; }
+  .air-home .nav-links .nav-sky { margin-left: auto; }
+}
+
+/* ── Homepage refinement: passport stamps, postcard CTA, focus states ───── */
+.passport-eyebrow { margin: 0; font: 600 11px/1 Inter, sans-serif; letter-spacing: .28em; text-transform: uppercase; color: #d8c5e9; }
+.passport-heading > p:last-child { color: #e4e9f1; font: italic 16px/1.4 Georgia, serif; }
+/* Eight carry-on stamps in priority order: design and engineering lead, side by side. */
+.passport-stamps { grid-template-columns: repeat(2, minmax(0, 1fr)); grid-template-rows: none; gap: 14px 12px; padding: 16px 8px; }
+.passport-stamps li:nth-child(n) { grid-area: auto; width: auto; justify-self: stretch; min-height: 60px; font-size: 10.5px; --stamp-y: 0px; }
+.passport-stamps li:nth-child(odd) { --stamp-angle: -3deg; }
+.passport-stamps li:nth-child(even) { --stamp-angle: 3deg; --stamp-y: 4px; }
+.passport-stamps li.is-primary { min-height: 78px; font-size: 12.5px; letter-spacing: .08em; border-width: 3px; color: #2f3a5f; border-radius: 10px; }
+.passport-stamps li.is-primary:nth-child(2) { color: #6b3f6e; border-radius: 50% / 40%; }
+.passport-stamps li:nth-child(3) { color: #416d60; border-radius: 12px 3px; }
+.passport-stamps li:nth-child(4) { color: #526c84; border-style: dashed; }
+.passport-stamps li:nth-child(5) { color: #78516f; border-radius: 50%; }
+.passport-stamps li:nth-child(6) { color: #805d36; border-style: double; border-width: 3px; }
+.passport-stamps li:nth-child(7) { color: #416d60; border-radius: 45%; grid-column: auto; }
+.passport-stamps li:nth-child(8) { color: #5e4a3b; border-radius: 3px 14px; }
+.passport-bio { font-size: 15px; line-height: 1.7; color: #3f3027; }
+.passport-details dt { color: #5e4a3b; }
+
+/* Two case studies, two equal choices. */
+.postcard-links { display: flex; flex-wrap: wrap; align-items: center; gap: 10px 12px; margin: 8px 0 14px; }
+.postcard-links-label { flex: 1 0 100%; font: 600 11px/1 Inter, sans-serif; letter-spacing: .16em; text-transform: uppercase; color: #6e5a4b; }
+.postcard-links .postcard-link {
+  gap: 10px; padding: 12px 18px; border: 0; border-radius: 999px; font: 600 15px/1 Inter, sans-serif;
+  background: #2f3a5f; color: #fff; box-shadow: 0 10px 20px -12px rgba(47, 58, 95, .7); transition: background .2s ease, transform .2s ease;
+}
+.postcard-links .postcard-link--accent { background: var(--pc-pink); box-shadow: 0 10px 20px -12px rgba(217, 85, 107, .8); }
+.postcard-links .postcard-link:hover { background: #3b4876; transform: translateY(-1px); }
+.postcard-links .postcard-link--accent:hover { background: #c4435a; }
+
+/* Clear keyboard focus everywhere on the homepage. */
+.air-home :is(a, button, [tabindex]):focus-visible { outline: 3px solid #5a6fd6; outline-offset: 3px; border-radius: 6px; }
+.air-home .nav-links a:hover, .air-home .nav-links a:focus-visible { color: #4e385d; }
+.air-home .footer-socials a:hover, .air-home .footer-socials a:focus-visible { color: #fff; border-color: #fff; }
+
+/* ── Rubber-stamp impressions ─────────────────────────────────────────────
+   Uneven ink: a speckled noise mask wears the edges and fills, the ink
+   multiplies into the paper, and each stamp carries a small second line. */
+.passport-stamps { gap: 18px 14px; padding: 18px 10px 10px; }
+.passport-stamps li {
+  --ink: currentColor;
+  border-width: 2.5px; outline-width: 1.2px; outline-offset: -7px;
+  padding: 14px 12px 20px; font-family: 'Courier New', Courier, monospace; font-weight: 700; letter-spacing: .08em;
+  mix-blend-mode: multiply; opacity: .86; filter: blur(.2px);
+  -webkit-mask: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='180' height='180'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.8' numOctaves='3' stitchTiles='stitch'/%3E%3CfeColorMatrix values='0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 -3.1 2.35'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E") 0 0 / 180px 180px;
+          mask: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='180' height='180'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.8' numOctaves='3' stitchTiles='stitch'/%3E%3CfeColorMatrix values='0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 -3.1 2.35'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E") 0 0 / 180px 180px;
+}
+.passport-stamps li::after {
+  position: absolute; left: 0; right: 0; bottom: 8px; text-align: center;
+  font: 700 7.5px/1 'Courier New', Courier, monospace; letter-spacing: .22em; opacity: .85;
+}
+.passport-stamps li:nth-child(1)::after { content: '★ AVANIE AIR · 01A ★'; }
+.passport-stamps li:nth-child(2)::after { content: '★ BUILT TO SHIP ★'; }
+.passport-stamps li:nth-child(3)::after { content: 'REACT · JAVASCRIPT'; }
+.passport-stamps li:nth-child(4)::after { content: 'FLUTTER · SWIFTUI'; }
+.passport-stamps li:nth-child(5)::after { content: '— ADMITTED —'; }
+.passport-stamps li:nth-child(6)::after { content: 'NMI · UGA'; }
+.passport-stamps li:nth-child(7)::after { content: 'FOR EVERYONE'; }
+.passport-stamps li:nth-child(8)::after { content: 'INSIGHTS · CLOUD'; }
+/* Shapes: a mix of round, oval and rounded-rectangle stamps, never sharp corners. */
+.passport-stamps li:nth-child(1) { border-radius: 14px; }
+.passport-stamps li:nth-child(2) { border-radius: 50% / 46%; }
+.passport-stamps li:nth-child(3) { border-radius: 12px 26px; }
+.passport-stamps li:nth-child(4) { border-radius: 999px; border-style: solid; }
+.passport-stamps li:nth-child(5) { border-radius: 50%; }
+.passport-stamps li:nth-child(6) { border-radius: 16px; border-style: double; border-width: 4px; }
+.passport-stamps li:nth-child(7) { border-radius: 45% / 50%; }
+.passport-stamps li:nth-child(8) { border-radius: 10px 22px; }
+/* Hand-stamped angles and a touch more ink. */
+.passport-stamps li { opacity: .92; }
+.passport-stamps li:nth-child(1) { --stamp-angle: -5deg; }
+.passport-stamps li:nth-child(2) { --stamp-angle: 4deg; }
+.passport-stamps li:nth-child(3) { --stamp-angle: 2deg; }
+.passport-stamps li:nth-child(4) { --stamp-angle: -3deg; }
+.passport-stamps li:nth-child(5) { --stamp-angle: -7deg; }
+.passport-stamps li:nth-child(6) { --stamp-angle: 5deg; }
+.passport-stamps li:nth-child(7) { --stamp-angle: 3deg; }
+.passport-stamps li:nth-child(8) { --stamp-angle: -4deg; }

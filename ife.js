@@ -1,3 +1,5 @@
+// In-flight entertainment: the original Projects carousel. Scoped to the
+// screen, so it also works when air-cabin.js moves this section into the seat panel.
 (() => {
   const screen = document.querySelector('[data-ife-screen]');
   if (!screen) return;
@@ -45,8 +47,14 @@
     progressFill.style.width = `${pct}%`;
   }
 
+  const selectedLabel = screen.querySelector('[data-ife-selected-label]');
+  // One "Now playing" badge that follows whichever project is selected.
+  const badge = screen.querySelector('.ife-card-badge');
+  badge?.setAttribute('aria-hidden', 'true');
   function updateInfo(card) {
     const d = card.dataset;
+    if (badge && badge.parentNode !== card) card.prepend(badge);
+    if (selectedLabel) selectedLabel.textContent = 'Now playing';
     if (catEl) catEl.textContent = d.cat || '';
     if (titleEl) titleEl.textContent = d.title || '';
     if (roleEl) roleEl.textContent = d.role || '';
