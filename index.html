@@ -2,6 +2,7 @@
 <html lang="en">
   <head>
     <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <script>
       // Strip any URL fragment before the browser can act on it, so a
       // shared #section link never jumps past the intro on first load.
@@ -21,7 +22,10 @@
       // reduced-motion visitors get it by default.
       (function () {
         var fast = null;
-        if (matchMedia('(max-width: 760px)').matches) fast = '1';
+        // Safari can still report the 980px default width to a script in <head>,
+        // so also trust the real screen width (the viewport is width=device-width).
+        var vw = Math.min(innerWidth, screen.width || innerWidth);
+        if (vw <= 760 || matchMedia('(max-width: 760px)').matches) fast = '1';
         else {
           try {
             var q = new URLSearchParams(location.search).get('fast');
@@ -33,7 +37,6 @@
         document.documentElement.dataset.fast = fast === '1' ? 'on' : 'off';
       })();
     </script>
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Avanie Baptiste — Portfolio</title>
     <link rel="preconnect" href="https://fonts.googleapis.com" />
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
