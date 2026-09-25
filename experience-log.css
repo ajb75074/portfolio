@@ -120,18 +120,6 @@
 .explog-stop.label-below .explog-stop-label { top: calc(100% + 6px); }
 .explog-stop.is-active .explog-stop-label { color: var(--explog-blue); }
 
-.explog-progress-text {
-  position: absolute;
-  top: 0;
-  right: 0;
-  margin: 0;
-  font-size: 11px;
-  font-weight: 700;
-  letter-spacing: 0.14em;
-  text-transform: uppercase;
-  color: var(--explog-cocoa-soft);
-}
-
 /* ── Divider ── */
 .explog-divider { margin-top: 8px; border-top: 1px solid var(--explog-line); }
 
@@ -251,8 +239,7 @@
   .explog-dashboard { padding: 16px 14px 14px; border-radius: 20px; }
 
   /* Route: a touch-sized strip you can tap or drag along. */
-  .explog-route-header { padding-top: 22px; touch-action: pan-y; }
-  .explog-progress-text { top: 0; font-size: 10px; }
+  .explog-route-header { padding-top: 6px; touch-action: pan-y; }
   .explog-stop { width: 34px; height: 52px; }
   .explog-stop-dot { width: 10px; height: 10px; }
   .explog-stop-label { display: none; }

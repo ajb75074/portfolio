@@ -29,7 +29,14 @@ function paneTexture() {
   return texture;
 }
 
-export async function createWindow(host, onOpen) {
+// createWindow(host, onOpen, { anchored }):
+//   default   fills `host` and frames the window itself (the original behaviour).
+//   anchored  the canvas is a large piece of the cabin wall (the seat scene's
+//             world) and the caller places the window in it with place(). The
+//             shade (setShade) and the lean-in (setZoom) are then driven
+//             separately, so this one model is the only window on the page.
+export async function createWindow(host, onOpen, options = {}) {
+  const anchored = !!options.anchored;
   const gltf = await new GLTFLoader().loadAsync('./public/models/air-window.glb');
   const renderer = new THREE.WebGLRenderer({ alpha: true, antialias: true });
   renderer.setPixelRatio(Math.min(devicePixelRatio, 1.75));
@@ -58,6 +65,8 @@ export async function createWindow(host, onOpen) {
     }
   });
   const boundary = [...points.values()].sort((a, b) => Math.atan2(a.y, a.x) - Math.atan2(b.y, b.x));
+  const ext = boundary.reduce((e, p) => ({ x0: Math.min(e.x0, p.x), x1: Math.max(e.x1, p.x), y0: Math.min(e.y0, p.y), y1: Math.max(e.y1, p.y) }), { x0: Infinity, x1: -Infinity, y0: Infinity, y1: -Infinity });
+  const apW = ext.x1 - ext.x0, apH = ext.y1 - ext.y0;
   // Keep the imported cabin intact. These concentric details follow its exact
   // aperture, adding a raised molding and recessed lip to the flat wall export.
   function ringShape(outer, inner) {
@@ -140,16 +149,21 @@ export async function createWindow(host, onOpen) {
     camera.top = viewHeight / 2; camera.bottom = -camera.top; camera.updateProjectionMatrix();
     renderer.setSize(width, height); render();
   }
-  const observer = new ResizeObserver(resize); observer.observe(host);
-  for (const element of host.parentElement?.querySelectorAll('.air-label, .air-controls') ?? []) observer.observe(element);
-  resize();
+  let observer = null;
+  if (!anchored) {
+    observer = new ResizeObserver(resize); observer.observe(host);
+    for (const element of host.parentElement?.querySelectorAll('.air-label, .air-controls') ?? []) observer.observe(element);
+    resize();
+  } else {
+    Object.assign(renderer.domElement.style, { display: 'block', position: 'absolute', left: '0', top: '0' });
+  }
   const raycaster = new THREE.Raycaster();
   function click(event) {
     const r = renderer.domElement.getBoundingClientRect();
     raycaster.setFromCamera(new THREE.Vector2((event.clientX-r.left)/r.width*2-1, -(event.clientY-r.top)/r.height*2+1), camera);
-    if (raycaster.intersectObjects([panel, handle, trim, rim]).length) onOpen();
+    if (raycaster.intersectObjects([panel, handle, trim, rim]).length) onOpen?.();
   }
-  renderer.domElement.addEventListener('click', click);
+  if (onOpen) renderer.domElement.addEventListener('click', click);
   const lost = event => { event.preventDefault(); host.dispatchEvent(new Event('scene-unavailable')); };
   renderer.domElement.addEventListener('webglcontextlost', lost);
   function animate(target, values, duration) {
@@ -169,7 +183,37 @@ export async function createWindow(host, onOpen) {
       }
     });
   }
+  // ── Anchored mode ──────────────────────────────────────────────────────────
+  let px = 1, zoomMax = 1, lastZoom = -1;
+  function place({ width, height, cx, cy, aperturePx, view }) {
+    px = aperturePx / apH;                                    // pixels per model unit
+    renderer.setPixelRatio(Math.min(devicePixelRatio || 1, 1.75, Math.sqrt(8e6 / (width * height))));
+    renderer.setSize(width, height);
+    // The window's centre sits at pixel (cx, cy) of the canvas.
+    camera.left = -cx / px; camera.right = (width - cx) / px; camera.top = cy / px; camera.bottom = -(height - cy) / px;
+    camera.updateProjectionMatrix();
+    // Zoom until the opening covers the screen, from wherever the window sits in it.
+    const dx = view.w / 2, dy = Math.max(view.cy, view.h - view.cy);
+    zoomMax = Math.max(dx / px / (apW / 2), dy / px / (apH / 2)) * 1.3;
+    lastZoom = -1;
+    render();
+  }
+  function setZoom(z) {
+    if (disposed || z === lastZoom) return;
+    lastZoom = z;
+    const scale = 1 + (zoomMax - 1) * z * z;                  // ease in hard, like leaning to the glass
+    group.scale.set(scale, scale, 1);
+    render();
+  }
+  function setShade(open, animated = true) {
+    if (disposed) return Promise.resolve();
+    tween?.kill();
+    if (!animated) { shade.position.y = open ? 3.4 : 0; render(); return Promise.resolve(); }
+    return animate(shade.position, { y: open ? 3.4 : 0 }, .4);
+  }
+
   return {
+    aspect: apW / apH, place, setZoom, setShade,
     async open() {
       await animate(shade.position, { y: 3.4 }, 1.35);
       if (disposed) return;
@@ -193,7 +237,7 @@ export async function createWindow(host, onOpen) {
       render();
     },
     dispose() {
-      disposed = true; tween?.kill(); cancelAnimationFrame(frame); pending?.(); observer.disconnect();
+      disposed = true; tween?.kill(); cancelAnimationFrame(frame); pending?.(); observer?.disconnect();
       renderer.domElement.removeEventListener('click', click);
       renderer.domElement.removeEventListener('webglcontextlost', lost);
       const geometries = new Set(), materials = new Set();

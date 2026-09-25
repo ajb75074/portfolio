@@ -8,7 +8,7 @@ body.air-home { background: #2e4666; isolation: isolate; }
 }
 
 /* ── Cloud deck (undercast) ─────────────────────────────────────────────
-   Three perspective layers drift toward the tail. Seat 01A faces port, so the
+   Three perspective layers drift toward the tail. Seat 2A faces port, so the
    nose is to the viewer's right and the scenery streams right-to-left.
    air-clouds.js fills --cloud-far/mid/near with generated tileable textures. */
 .air-deck {
@@ -922,6 +922,7 @@ html.air-boarding, body.air-boarding { height: 100%; overflow: hidden; }
   font-family: Georgia, 'Times New Roman', serif;
   font-size: 11px;
   line-height: 1.25;
+  min-height: 2.5em;            /* always two lines, so a longer name never changes the device's height */
   text-align: center;
   color: var(--ife-cocoa-soft);
 }
@@ -1128,7 +1129,7 @@ html[data-sky='day'] .sky-icon-moon, html[data-sky='night'] .sky-icon-sun { disp
   position: absolute; left: 0; right: 0; bottom: 8px; text-align: center;
   font: 700 7.5px/1 'Courier New', Courier, monospace; letter-spacing: .22em; opacity: .85;
 }
-.passport-stamps li:nth-child(1)::after { content: '★ AVANIE AIR · 01A ★'; }
+.passport-stamps li:nth-child(1)::after { content: '★ AVANIE AIR · 2A ★'; }
 .passport-stamps li:nth-child(2)::after { content: '★ BUILT TO SHIP ★'; }
 .passport-stamps li:nth-child(3)::after { content: 'REACT · JAVASCRIPT'; }
 .passport-stamps li:nth-child(4)::after { content: 'FLUTTER · SWIFTUI'; }

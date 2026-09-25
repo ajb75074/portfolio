@@ -1,7 +1,7 @@
 /* ─────────────────────────────────────────────────────────────────────────
    Avanie Air cabin: the scroll-driven boarding story in #home.
    The aisle is drawn on a canvas by air-cabin.js; this file styles the door,
-   announcements, seat 01A, the content panel, and Fast track.
+   announcements, seat 2A, the content panel, and Fast track.
    ───────────────────────────────────────────────────────────────────────── */
 .cabin {
   --c-bulk: #c2b8c6; --c-bulk-lo: #a79cae; --c-psu: linear-gradient(#e2d8e8, #cfc3d8);
@@ -26,7 +26,7 @@ html[data-sky='day'] .cabin {
 .cabin-door .air-ticket { transform: translateY(calc(var(--out) * 70vh)) rotate(calc(var(--out) * 7deg)); opacity: calc(1 - var(--out) * 1.3); }
 
 /* ── Welcome announcement (one, while walking the aisle) ───────────────── */
-.cabin-announce { position: absolute; z-index: 2; left: 50%; top: clamp(124px, 18vh, 180px); width: min(760px, calc(100% - 32px)); transform: translateX(-50%); margin: 0; padding: 0; list-style: none; pointer-events: none; }
+.cabin-announce { position: absolute; z-index: 2; left: 50%; top: clamp(104px, 12.5vh, 140px); width: min(660px, calc(100% - 32px)); transform: translateX(-50%); margin: 0; padding: 0; list-style: none; pointer-events: none; }
 .cabin-announce li {
   position: absolute; inset: 0 0 auto; opacity: 0; padding: 22px 28px 26px; border-radius: 22px; text-align: center;
   background: linear-gradient(180deg, rgba(29, 24, 40, .78), rgba(29, 24, 40, .62)); color: #f8f2e6; backdrop-filter: blur(10px);
@@ -34,89 +34,157 @@ html[data-sky='day'] .cabin {
 }
 .cabin-announce span { display: inline-flex; align-items: center; gap: 8px; font: 600 11px/1 Inter, sans-serif; letter-spacing: .26em; text-transform: uppercase; color: #e2d2f0; }
 .cabin-announce span::before { content: ''; width: 7px; height: 7px; border-radius: 50%; background: #ffd38a; box-shadow: 0 0 8px #ffd38a; }
-.cabin-announce p { margin: 12px 0 0; font: 400 clamp(19px, 2.5vw, 27px)/1.45 Georgia, 'Times New Roman', serif; text-wrap: balance; }
+.cabin-announce p { margin: 12px 0 0; font: 400 clamp(17px, 2vw, 23px)/1.42 Georgia, 'Times New Roman', serif; text-wrap: balance; }
 .cabin-announce strong { color: #fff; font-weight: 700; }
 
-/* ── Seat 01A hub ─────────────────────────────────────────────────────── */
+/* ── Seat 2A hub ─────────────────────────────────────────────────────── */
 .cabin-seat {
-  --in: 0; --lean: 0; --win-x: 17%; --win-y: 48%;
-  position: absolute; inset: 0; z-index: 3; overflow: hidden;
-  display: grid; grid-template-columns: minmax(150px, 30%) 1fr; grid-template-rows: auto 1fr auto;
-  grid-template-areas: 'psu psu' 'win bulk' 'tray tray';
-  gap: 12px 3vw; padding: 118px clamp(16px, 4vw, 56px) 0;
-  opacity: calc(var(--in) * (1 - var(--lean)));
-  transform: scale(calc(1 + var(--lean) * 1.4)); transform-origin: var(--win-x) var(--win-y);
-  pointer-events: none; isolation: isolate;
+  --in: 0; --lean: 0; --out: 0; --s: 1;
+  position: absolute; inset: 0; z-index: 3; overflow: hidden; isolation: isolate;
+  opacity: calc(var(--in) * (1 - var(--out, 0)));
+  pointer-events: none;
 }
 .cabin-seat.is-live { pointer-events: auto; }
-/* The bulkhead wall is one layer with a window-shaped hole (position set by
-   air-cabin.js), so the glass looks straight onto the real sky behind the page. */
-.cabin-seat::before {
-  content: ''; position: absolute; inset: 0; z-index: -1; background: linear-gradient(var(--c-bulk), var(--c-bulk-lo));
-  -webkit-mask: radial-gradient(ellipse var(--hole-rx, 0px) var(--hole-ry, 0px) at var(--hole-x, -99px) var(--hole-y, -99px), transparent 97%, #000 100%);
-          mask: radial-gradient(ellipse var(--hole-rx, 0px) var(--hole-ry, 0px) at var(--hole-x, -99px) var(--hole-y, -99px), transparent 97%, #000 100%);
-}
 .cabin-seat button { font: inherit; color: inherit; background: none; border: 0; padding: 0; cursor: pointer; }
-.seat-window { grid-area: win; position: relative; z-index: 0; align-self: center; justify-self: center; }
-.seat-window-frame { position: relative; display: block; width: clamp(130px, 16vw, 230px); aspect-ratio: .72; border-radius: 46% / 36%; }
-.seat-window-glass { position: absolute; inset: 0; border-radius: inherit; box-shadow: 0 0 0 16px #fff4df, 0 0 0 19px #c6b99f, inset 0 8px 18px rgba(20, 28, 44, .35); }
-.seat-window-shade { position: absolute; inset: 0; border-radius: inherit; overflow: hidden; }
-.seat-window-shade span { position: absolute; left: 0; right: 0; top: 0; height: 34%; background: linear-gradient(#f5ead5, #eadcc2); box-shadow: 0 3px 6px rgba(0, 0, 0, .18); transition: height .5s cubic-bezier(.3, .7, .2, 1); }
-.seat-window-shade span::after { content: ''; position: absolute; left: 40%; right: 40%; bottom: 7px; height: 5px; border-radius: 3px; background: #cdb993; }
-.seat-window:hover .seat-window-shade span, .seat-window:focus-visible .seat-window-shade span { height: 8%; }
 
-/* Cabin headliner: a shallow, inset cream ceiling panel. Quiet on purpose. */
-.seat-psu {
-  grid-area: psu; position: relative; z-index: 1; height: 30px; margin: 0 clamp(8px, 3vw, 40px);
-  border-radius: 0 0 26px 26px / 0 0 18px 18px;
-  background: linear-gradient(180deg, #efe5d3 0%, #f8f1e4 55%, #f3e9d8 100%);
-  box-shadow: inset 0 -1px 0 rgba(255, 255, 255, .7), inset 0 6px 10px -4px rgba(92, 70, 44, .22), inset 0 -8px 12px -10px rgba(92, 70, 44, .25), 0 10px 18px -14px rgba(60, 44, 28, .35);
+/* The cabin is one wide wall (170vw) that a fixed camera pans across. The wall
+   and window move together; the seat slides a little further for parallax.
+   Views: forward (the seat) and left (the window). */
+.seat-world {
+  --cam-x: 0vw; --cam-r: 0deg; --seat-x: 0vw;
+  position: absolute; top: 0; bottom: 0; left: -50vw; right: -20vw; isolation: isolate;
+  transform: perspective(1800px) translate3d(var(--cam-x), 0, 0) rotateY(var(--cam-r)); transform-origin: 100vw 50%;
+  transition: transform 1s cubic-bezier(.65, 0, .2, 1);
 }
-.seat-psu::after { content: ''; position: absolute; left: 6%; right: 6%; top: 9px; height: 1px; background: linear-gradient(90deg, transparent, rgba(150, 124, 92, .22), transparent); }
-/* Two recessed reading lights over 01A: a warm glow, nothing to press. */
-.seat-psu-lamp { position: absolute; top: 9px; width: 12px; height: 12px; border-radius: 50%; background: radial-gradient(circle at 45% 40%, #fffaf0 0 30%, #ecdcb9 60%, #cdb994 100%); box-shadow: inset 0 1px 2px rgba(92, 70, 44, .35), 0 0 0 2px rgba(214, 199, 172, .7); }
-.seat-psu-lamp:first-child { left: 16%; box-shadow: inset 0 1px 2px rgba(92, 70, 44, .25), 0 0 0 2px rgba(214, 199, 172, .7), 0 6px 16px 2px rgba(255, 226, 170, .55); }
-.seat-psu-lamp:last-child { left: calc(16% + 26px); opacity: .8; }
-html:not([data-sky='day']) .seat-psu { background: linear-gradient(180deg, #d9cfdf 0%, #e6dde9 55%, #ddd3e2 100%); }
-
-.seat-bulkhead { grid-area: bulk; position: relative; z-index: 1; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: clamp(18px, 5vh, 48px); min-height: 0; }
-.seat-bulkhead-id { display: flex; flex-direction: column; align-items: center; gap: 12px; }
-.seat-status {
-  margin: 0; padding: 7px 14px; border-radius: 999px; border: 1px solid rgba(110, 86, 66, .28); background: rgba(255, 250, 240, .55);
-  font: 600 10.5px/1.3 Inter, sans-serif; letter-spacing: .2em; text-transform: uppercase; text-align: center; color: #5b4636;
+.cabin-seat[data-view='left'] .seat-world { --cam-x: 39vw; --cam-r: 3deg; --seat-x: 10vw; }
+/* The wall is one layer with a window-shaped hole (position set by air-cabin.js),
+   so the glass looks straight onto the real sky behind the page. Panel seams give
+   it depth as the camera pans. */
+.seat-world::before { content: ''; position: absolute; inset: 0; z-index: -1; background: #f5e3c4; }
+.seat-world.has-3d::before { display: none; }
+/* Panel seams and soft shading on the wall: they keep it reading as a real cabin wall. */
+.seat-world::after {
+  content: ''; position: absolute; inset: 0; z-index: 0; pointer-events: none; opacity: calc(1 - var(--lean));
+  background:
+    linear-gradient(180deg, rgba(70, 52, 36, .06) 0, transparent 22%, transparent 58%, rgba(70, 52, 36, .16) 100%),
+    repeating-linear-gradient(90deg, transparent -14vw calc(16vw - 3px), rgba(96, 76, 58, .2) calc(16vw - 3px) calc(16vw - 1px), rgba(255, 255, 255, .5) calc(16vw - 1px) 16vw);
 }
-html:not([data-sky='day']) .seat-status { color: #3e3346; border-color: rgba(62, 51, 70, .3); background: rgba(250, 245, 252, .45); }
-.seat-bulkhead-brand { margin: 0; font: 700 clamp(28px, 4vw, 52px)/1 'Fredoka', 'Arial Rounded MT Bold', sans-serif; letter-spacing: -.02em; color: rgba(91, 70, 54, .55); text-shadow: 0 1px 0 rgba(255, 255, 255, .5); }
-.seat-pocket { position: relative; display: flex; align-items: flex-end; justify-content: center; gap: clamp(10px, 2vw, 24px); width: min(100%, 520px); height: clamp(120px, 20vh, 170px); padding: 0 20px; }
-.seat-pocket-mesh { position: absolute; z-index: 2; left: 0; right: 0; bottom: 0; height: 52%; border-radius: 14px 14px 6px 6px; pointer-events: none; background: repeating-linear-gradient(45deg, rgba(40, 30, 50, .45) 0 2px, transparent 2px 7px), repeating-linear-gradient(-45deg, rgba(40, 30, 50, .45) 0 2px, transparent 2px 7px), rgba(70, 60, 82, .5); box-shadow: inset 0 3px 0 #3a3044; }
-.seat-item { position: relative; z-index: 1; display: block; text-decoration: none; transition: transform .25s cubic-bezier(.3, .7, .2, 1); }
-.seat-item-art { display: grid; place-items: center; align-content: center; gap: 4px; text-align: center; width: clamp(96px, 10vw, 128px); height: clamp(112px, 17vh, 150px); padding: 10px; border-radius: 8px; font: 700 12px/1.25 Inter, sans-serif; letter-spacing: .06em; text-transform: uppercase; box-shadow: 0 6px 14px rgba(0, 0, 0, .2); }
-.seat-item-art small { display: block; font-weight: 500; letter-spacing: .12em; opacity: .8; }
-.seat-item--card .seat-item-art { background: linear-gradient(#ffd98a 0 22%, #fff7e6 22%); color: #6a4a12; transform: rotate(-4deg); }
-.seat-item--postcard .seat-item-art { background: repeating-linear-gradient(135deg, #d9556b 0 8px, #fbf4e6 8px 14px, #5a78b5 14px 22px, #fbf4e6 22px 28px); color: #7a2c3b; text-transform: none; font: italic 15px/1.2 Georgia, serif; box-shadow: inset 0 0 0 8px #fbf4e6, 0 6px 14px rgba(0, 0, 0, .2); }
-.seat-item--docs .seat-item-art { background: linear-gradient(#e7ecf7 0 20%, #fff 20%); color: #34416b; transform: rotate(3deg); }
-.seat-item:hover, .seat-item:focus-visible { transform: translateY(-20px); }
-
-.seat-tray { grid-area: tray; position: relative; z-index: 1; display: flex; align-items: flex-end; justify-content: center; gap: clamp(18px, 3vw, 36px); margin: 0 -8vw; padding: 16px 12vw 58px; background: var(--c-tray); border-radius: 26px 26px 0 0; box-shadow: 0 -10px 30px rgba(0, 0, 0, .22), inset 0 3px 0 var(--c-tray-edge); }
-/* The in-flight entertainment lives on a tablet on your tray (it opens the real IFE). */
+.seat-world-canvas { position: absolute; inset: 0; z-index: 0; pointer-events: none; }
+html:not([data-sky='day']) :is(.seat-world-canvas canvas, .seat-world:not(.has-3d)::before) { filter: brightness(.8) saturate(.55) hue-rotate(215deg); }
+.seat-window {
+  position: absolute; z-index: 1; display: block; left: var(--win-cx, 61vw); top: var(--win-cy, 44%); width: var(--win-w, 130px); height: var(--win-h, 220px);
+  margin: calc(var(--win-h, 220px) / -2) 0 0 calc(var(--win-w, 130px) / -2); border-radius: 46% / 36%;
+}
+/* Only if WebGL is unavailable: a plain closed-shade window stands in for the model. */
+.seat-world:not(.has-3d) .seat-window { background: linear-gradient(#f5ead5, #eadcc2); box-shadow: 0 0 0 10px #fff4df, 0 0 0 12px #c6b99f, inset 0 8px 18px rgba(20, 28, 44, .3); }
+.cabin-seat[data-shade='open'] .seat-world:not(.has-3d) .seat-window { background: linear-gradient(#2a6bb3, #cfe2f4); }
+.seat-window .seat-hot-tag { top: auto; bottom: calc(var(--win-h, 220px) * -.3 - 16px); transform: translateX(-50%); }
+/* ── Seatback in front of 2A ─────────────────────────────────────────────
+   One soft-navy seat: a headrest, a recessed shell that holds the in-flight
+   screen (Projects), a seam, then the storage pouch. Passport, Latest Trip
+   and the Resume sit inside the pouch with their tops sticking out. The
+   whole seat is turned a few degrees toward the window. */
+.seat-back {
+  --seat-hi: #4a5890; --seat: #37447a; --seat-lo: #2a3460; --seat-deep: #1f2748;
+  position: absolute; z-index: 2; left: 110vw; bottom: var(--bleed, 0px); width: 470px; margin-left: -235px; isolation: isolate;
+  display: flex; flex-direction: column; padding-top: 6px;
+  border-radius: 38px 38px 0 0;
+  background: linear-gradient(98deg, var(--seat-hi) 0%, var(--seat) 38%, var(--seat-lo) 100%);
+  box-shadow:
+    inset 0 2px 0 rgba(255, 255, 255, .22), inset 3px 0 0 rgba(255, 255, 255, .07), inset -4px 0 8px rgba(10, 14, 34, .32), inset 0 -18px 30px rgba(10, 14, 34, .22),
+    0 34px 46px -22px rgba(40, 30, 60, .5), 0 6px 14px rgba(40, 30, 60, .18);
+  transform: translateX(var(--seat-x)) scale(var(--s)) perspective(1500px) rotateY(-4deg) rotateX(1.5deg); transform-origin: 50% 100%;
+  transition: transform 1s cubic-bezier(.65, 0, .2, 1);
+}
+/* Headrest: sits behind the top of the seat, lighter and narrower. */
+.seat-back-head {
+  position: absolute; z-index: -1; left: 50%; top: -30px; width: 56%; height: 38px; transform: translateX(-50%);
+  border-radius: 26px 26px 0 0; background: linear-gradient(180deg, #f3eaf8 0%, #d8cbe6 100%);
+  box-shadow: inset 0 2px 0 rgba(255, 255, 255, .8), inset 0 -8px 10px -6px rgba(78, 56, 93, .3), 0 -1px 0 rgba(78, 56, 93, .12);
+}
+.seat-back-head::after { content: ''; position: absolute; left: 22%; right: 22%; top: 12px; height: 1px; background: linear-gradient(90deg, transparent, rgba(78, 56, 93, .22), transparent); }
+/* Upper section: a recessed shell panel holding the screen. */
+.seat-back-shell {
+  position: relative; flex: 1 1 auto; min-height: 0; display: grid; place-items: center; margin: 10px 16px 0; padding: 40px 14px 22px; border-radius: 26px 26px 14px 14px;
+  background: linear-gradient(180deg, var(--seat-deep) 0%, #27305a 100%);
+  box-shadow: inset 0 3px 8px rgba(6, 8, 22, .55), inset 0 -1px 0 rgba(255, 255, 255, .06), 0 1px 0 rgba(255, 255, 255, .13);
+}
 .seat-tablet { position: relative; display: block; transition: transform .25s cubic-bezier(.3, .7, .2, 1); }
 .seat-tablet-screen {
-  display: grid; grid-template-rows: auto 1fr auto; gap: 6px; width: clamp(210px, 24vw, 290px); aspect-ratio: 16 / 10; padding: 10px 12px; border-radius: 14px; text-align: left;
-  background: radial-gradient(ellipse at 20% 0%, #33407a, #121726 70%); box-shadow: 0 0 0 6px #1d1a24, 0 0 0 7px #5a506a, 0 14px 30px rgba(0, 0, 0, .35); color: #e9edff;
+  position: relative; display: grid; grid-template-rows: auto 1fr auto; gap: 6px; width: 292px; aspect-ratio: 16 / 10; padding: 10px 12px; border-radius: 14px; text-align: left; overflow: hidden;
+  background: radial-gradient(ellipse at 20% 0%, #33407a, #121726 70%); color: #e9edff;
+  box-shadow: 0 0 0 5px #14121b, 0 0 0 6px #4a4258, inset 0 0 0 1px rgba(255, 255, 255, .07), 0 0 0 9px rgba(0, 0, 0, .22), 0 14px 22px -4px rgba(0, 0, 0, .5);
 }
+.seat-tablet-screen::after { content: ''; position: absolute; inset: 0; pointer-events: none; background: linear-gradient(122deg, rgba(255, 255, 255, .13) 0%, rgba(255, 255, 255, 0) 34%); }
 .seat-tablet-bar { display: flex; justify-content: space-between; font: 600 9px/1 Inter, sans-serif; letter-spacing: .18em; text-transform: uppercase; color: #9fa9d6; }
 .seat-tablet-map svg { width: 100%; height: 100%; overflow: visible; }
 .seat-tablet-map circle { fill: #d8c5e9; }
 .seat-tablet-route { fill: none; stroke: #d8c5e9; stroke-width: 1.6; stroke-dasharray: 3 4; }
 .seat-tablet-plane { fill: #ffd38a; }
 .seat-tablet-cta { font: 600 12px/1 Inter, sans-serif; color: #fff; letter-spacing: .04em; }
-.seat-tablet:hover, .seat-tablet:focus-visible { transform: translateY(-8px); }
-.seat-passport { position: relative; transform: rotate(-8deg); transition: transform .25s cubic-bezier(.3, .7, .2, 1); }
-.seat-passport-art { display: grid; justify-items: center; align-content: center; gap: 8px; height: clamp(72px, 10vh, 98px); aspect-ratio: .72; border-radius: 8px 12px 12px 8px; background: linear-gradient(90deg, #243157 0 6%, #34457a 6%); color: #f0d79c; box-shadow: 0 10px 18px rgba(0, 0, 0, .28); font: 700 10px/1 Inter, sans-serif; letter-spacing: .2em; }
-.seat-passport-art i { width: 40%; aspect-ratio: 1; border-radius: 50%; border: 2px solid #f0d79c; }
-.seat-passport:hover, .seat-passport:focus-visible { transform: rotate(-3deg) translateY(-10px); }
-.seat-cup { width: 40px; height: 48px; margin-bottom: 2px; border-radius: 4px 4px 12px 12px; background: linear-gradient(90deg, #f8f4ec, #ded6c7); box-shadow: 0 6px 10px rgba(0, 0, 0, .2); }
+.seat-tablet:hover, .seat-tablet:focus-visible { transform: translateY(-4px); }
+
+/* Lower section: the storage pouch. Items sit behind its front panel. */
+.seat-pocket {
+  position: relative; flex: none; display: flex; align-items: flex-end; justify-content: center; gap: 12px; height: 184px; padding: 0 26px 26px; margin-top: 12px;
+  box-shadow: 0 -1px 0 rgba(6, 8, 22, .5), inset 0 1px 0 rgba(255, 255, 255, .1);
+}
+.seat-item { position: relative; z-index: 1; display: block; text-decoration: none; transition: transform .25s cubic-bezier(.3, .7, .2, 1); }
+.seat-item-art {
+  display: grid; justify-items: center; align-content: start; gap: 4px; width: 106px; height: 124px; padding: 16px 8px 0; border-radius: 8px 8px 0 0;
+  text-align: center; font: 700 11px/1.25 Inter, sans-serif; letter-spacing: .06em; text-transform: uppercase; box-shadow: 0 -2px 10px rgba(6, 8, 22, .25);
+}
+.seat-item-art small { display: block; font-weight: 500; letter-spacing: .12em; opacity: .8; }
+.seat-item--passport { transform: rotate(-4deg); }
+.seat-item--passport .seat-item-art { width: 92px; background: linear-gradient(90deg, #243157 0 6%, #34457a 6%); color: #f0d79c; border-radius: 6px 10px 0 0; letter-spacing: .2em; font-size: 10px; gap: 8px; }
+.seat-item--passport .seat-item-art i { width: 44%; aspect-ratio: 1; border-radius: 50%; border: 2px solid #f0d79c; }
+.seat-item--postcard { transform: rotate(-1.5deg); }
+.seat-item--postcard .seat-item-art {
+  color: #7a2c3b; text-transform: none; font: italic 14px/1.2 Georgia, serif; border: 7px solid transparent; padding-top: 10px;
+  background: linear-gradient(#fbf4e6, #fbf4e6) padding-box, repeating-linear-gradient(135deg, #d9556b 0 8px, #fbf4e6 8px 14px, #5a78b5 14px 22px, #fbf4e6 22px 28px) border-box;
+}
+.seat-item--docs { transform: rotate(3deg); }
+.seat-item--docs .seat-item-art { background: linear-gradient(#e7ecf7 0 20%, #fff 20%); color: #34416b; }
+.seat-item:hover, .seat-item:focus-visible { z-index: 1; }
+.seat-item--passport:hover, .seat-item--passport:focus-visible { transform: rotate(-2deg) translateY(-16px); }
+.seat-item--postcard:hover, .seat-item--postcard:focus-visible { transform: rotate(0) translateY(-16px); }
+.seat-item--docs:hover, .seat-item--docs:focus-visible { transform: rotate(1.5deg) translateY(-16px); }
+/* Pouch front: quilted fabric with an elastic lip and a dashed stitch line. */
+.seat-pocket-front {
+  position: absolute; z-index: 2; left: 8px; right: 8px; bottom: 0; height: 84px; pointer-events: none; border-radius: 12px 12px 0 0;
+  background: linear-gradient(180deg, #3f4c80 0%, #323d6e 55%, #2b3560 100%);
+  border-top: 6px solid #252d55;
+  box-shadow: inset 0 2px 0 rgba(255, 255, 255, .12), inset 3px 0 0 rgba(255, 255, 255, .05), inset -3px 0 6px rgba(10, 14, 34, .3), 0 -6px 12px -4px rgba(6, 8, 22, .45);
+}
+.seat-pocket-front::before { content: ''; position: absolute; inset: 12px 12px 0; border: 1px dashed rgba(255, 255, 255, .2); border-bottom: 0; border-radius: 8px 8px 0 0; }
+
+.seat-tablet-bar { display: flex; justify-content: space-between; font: 600 9px/1 Inter, sans-serif; letter-spacing: .18em; text-transform: uppercase; color: #9fa9d6; }
+.seat-tablet-map svg { width: 100%; height: 100%; overflow: visible; }
+.seat-tablet-map circle { fill: #d8c5e9; }
+.seat-tablet-route { fill: none; stroke: #d8c5e9; stroke-width: 1.6; stroke-dasharray: 3 4; }
+.seat-tablet-plane { fill: #ffd38a; }
+.seat-tablet-cta { font: 600 12px/1 Inter, sans-serif; color: #fff; letter-spacing: .04em; }
 .cabin-seat .seat-reboard { position: absolute; z-index: 2; left: clamp(16px, 4vw, 56px); bottom: 20px; font: 500 11px/1 Inter, sans-serif; letter-spacing: .06em; color: rgba(43, 33, 24, .7); text-decoration: underline; text-underline-offset: 3px; padding: 8px 0; }
+
+/* Everything in front of the wall fades as you lean toward the window. */
+.seat-back, .seat-views, .seat-reboard { opacity: calc(1 - var(--lean)); }
+.seat-window .seat-hot-tag { opacity: 0; transition: opacity .4s ease .5s, background .2s ease, color .2s ease; pointer-events: none; }
+.cabin-seat[data-view='left'] .seat-window .seat-hot-tag { opacity: calc(1 - var(--lean)); pointer-events: auto; }
+
+/* Camera controls: they change with the view. */
+.seat-views { position: absolute; z-index: 6; left: 50%; bottom: 18px; transform: translateX(-50%); display: flex; align-items: center; justify-content: center; gap: 10px; max-width: calc(100% - 24px); }
+.cabin-seat .seat-view-btn {
+  padding: 12px 18px; border-radius: 999px; white-space: nowrap; background: rgba(255, 250, 240, .92); color: #3a2a20; border: 1px solid rgba(110, 86, 66, .22);
+  box-shadow: 0 10px 20px -12px rgba(40, 30, 20, .6); font: 600 11.5px/1 Inter, sans-serif; letter-spacing: .1em; text-transform: uppercase;
+  transition: background .2s ease, color .2s ease, transform .2s ease;
+}
+.cabin-seat .seat-view-btn:hover { background: #fff; transform: translateY(-2px); }
+.cabin-seat .seat-view-btn--main { background: #4e385d; color: #fff; border-color: transparent; padding: 13px 24px; }
+.cabin-seat .seat-view-btn--main:hover { background: #5f4772; }
+.cabin-seat .seat-view-btn:focus-visible { outline: 3px solid #5a6fd6; outline-offset: 3px; }
+.cabin-seat .seat-view-btn[hidden] { display: none; }
+
+.cabin-seat .seat-reboard { transition: opacity .3s ease; }
 
 /* Hotspot tags: always visible, so the cabin reads as a menu. */
 .seat-hot { outline: none; }
@@ -125,7 +193,7 @@ html:not([data-sky='day']) .seat-status { color: #3e3346; border-color: rgba(62,
   padding: 5px 10px; border-radius: 999px; background: #d8c5e9; color: #4e385d; font: 600 11px/1 Inter, sans-serif; letter-spacing: .12em; text-transform: uppercase;
   box-shadow: 0 4px 10px rgba(40, 30, 60, .2); transition: background .2s ease, color .2s ease;
 }
-.seat-window .seat-hot-tag { top: auto; bottom: -34px; transform: translateX(-50%); }
+.seat-back .seat-hot-tag { font-size: calc(11.5px / var(--s)); box-shadow: 0 calc(4px / var(--s)) calc(10px / var(--s)) rgba(40, 30, 60, .25); }
 .seat-hot:hover .seat-hot-tag, .seat-hot:focus-visible .seat-hot-tag { background: #4e385d; color: #fff; }
 .seat-hot:focus-visible { outline: 3px solid #5a6fd6; outline-offset: 4px; border-radius: 12px; }
 
@@ -163,12 +231,7 @@ html[data-sky='day'] .cabin-panel { background: linear-gradient(#1c579f, #2f72bb
 .cabin-contact .footer-socials { justify-content: center; }
 .cabin-contact .footer-socials a { color: #3a2a20; border-color: rgba(58, 42, 32, .3); }
 
-/* ── 3D window + cue ──────────────────────────────────────────────────── */
-.cabin-window-3d { position: absolute; inset: 0; z-index: 4; opacity: 0; visibility: hidden; }
-.cabin-window-3d canvas { display: block; width: 100%; height: 100%; }
-/* Dim the cream 3D wall at night so it matches the cabin's mood lighting. */
-html:not([data-sky='day']) .cabin-window-3d canvas { filter: brightness(.8) saturate(.55) hue-rotate(215deg); }
-.cabin-window-3d::after { content: ''; position: absolute; inset: 0; pointer-events: none; background: radial-gradient(ellipse 55% 45% at 28% 0%, rgba(255, 226, 170, .26), transparent 70%), radial-gradient(ellipse 120% 90% at 50% 45%, transparent 55%, rgba(62, 48, 32, .26) 100%); }
+/* ── Scroll cue ───────────────────────────────────────────────────────── */
 /* Scroll hints: a small, light label at the bottom that says what scrolling does next. */
 .cabin-cue {
   position: absolute; z-index: 5; left: 50%; bottom: 18px; transform: translateX(-50%); margin: 0; max-width: calc(100% - 32px);
@@ -177,6 +240,14 @@ html:not([data-sky='day']) .cabin-window-3d canvas { filter: brightness(.8) satu
   font: 600 10.5px/1.3 Inter, sans-serif; letter-spacing: .14em; text-transform: uppercase; text-align: center; white-space: nowrap;
   transition: opacity .3s ease; pointer-events: none;
 }
+/* At launch it has to be obvious what to do: larger, with a soft pulsing ring. */
+.cabin-cue[data-launch] { bottom: 14px; padding: 12px 22px; gap: 10px; font-size: 13px; letter-spacing: .16em; background: rgba(255, 250, 240, .97); color: #2b2118; border-color: rgba(255, 211, 138, .7); animation: cue-ring 2.2s ease-out infinite; }
+.cabin-cue[data-launch]::after { font-size: 17px; }
+@keyframes cue-ring {
+  0% { box-shadow: 0 0 0 0 rgba(255, 211, 138, .6), 0 14px 30px -12px rgba(0, 0, 0, .55); }
+  70%, 100% { box-shadow: 0 0 0 18px rgba(255, 211, 138, 0), 0 14px 30px -12px rgba(0, 0, 0, .55); }
+}
+@media (prefers-reduced-motion: reduce) { .cabin-cue[data-launch] { animation: none; } }
 .cabin-cue:empty { display: none; }
 .cabin-cue::after { content: '↓'; font-size: 13px; letter-spacing: 0; animation: cue-nudge 1.6s ease-in-out infinite; }
 .cabin-cue[data-noarrow]::after { display: none; }
@@ -190,24 +261,13 @@ html:not([data-sky='day']) .cabin-window-3d canvas { filter: brightness(.8) satu
 
 /* ── Phones ───────────────────────────────────────────────────────────── */
 @media (max-width: 760px) {
-  .cabin-seat { --win-x: 18%; --win-y: 26%; grid-template-columns: 1fr; grid-template-rows: auto auto 1fr auto; grid-template-areas: 'psu' 'win' 'bulk' 'tray'; gap: 10px; padding: 96px 14px 0; }
-  .seat-psu { height: 20px; margin: 0; }
-  .seat-psu::after { top: 6px; }
-  .seat-psu-lamp { top: 5px; width: 9px; height: 9px; }
-  .seat-window { justify-self: start; margin: 6px 0 0 8px; }
-  .seat-window-frame { width: 92px; }
-  .seat-window .seat-hot-tag { bottom: auto; top: 50%; left: calc(100% + 30px); transform: translateY(-50%); }
-  .seat-bulkhead { gap: 14px; }
-  .seat-bulkhead-brand { display: none; }
-  .seat-status { font-size: 9px; letter-spacing: .14em; padding: 6px 10px; }
-  .seat-pocket { height: 124px; gap: 8px; padding: 0 8px; }
-  .seat-item-art { width: 92px; height: 104px; font-size: 10px; }
-  .seat-item--postcard .seat-item-art { font-size: 12px; }
-  .seat-tray { gap: 14px; padding: 12px 10vw 64px; }
-  .seat-tablet-screen { width: 190px; }
-  .seat-passport-art { height: 66px; }
-  .seat-cup { display: none; }
-  .cabin-seat .seat-reboard { bottom: 16px; left: 50%; transform: translateX(-50%); }
+  .seat-back { left: 100vw; }
+  .cabin-seat[data-view='left'] .seat-world { --cam-x: 30vw; --seat-x: 12vw; }
+    .seat-views { bottom: 14px; gap: 6px; }
+  .cabin-seat .seat-view-btn { padding: 11px 12px; font-size: 10px; letter-spacing: .06em; }
+  .cabin-seat .seat-view-btn--main { padding: 12px 15px; }
+  .cabin-seat .seat-reboard { top: 96px; bottom: auto; left: 14px; }
+  .seat-back .seat-hot-tag { font-size: calc(10px / var(--s)); letter-spacing: .08em; }
   .cabin-cue { font-size: 9.5px; letter-spacing: .1em; }
   .cabin.is-seated .cabin-cue { bottom: 46px; }
   .cabin-door-frame { width: 92vw; height: 76vh; border-radius: 48px; }
@@ -217,7 +277,7 @@ html:not([data-sky='day']) .cabin-window-3d canvas { filter: brightness(.8) satu
 /* ── Fast track: no walk, just the boarding pass and the content ──────── */
 html[data-fast='on'] .cabin { height: auto !important; }
 html[data-fast='on'] .cabin-stage { position: relative; height: auto; min-height: 100vh; min-height: 100svh; overflow: visible; }
-html[data-fast='on'] :is(.cabin-canvas, .cabin-announce, .cabin-seat, .cabin-window-3d, .cabin-cue, .cabin-door-frame, .air-ticket-replay) { display: none; }
+html[data-fast='on'] :is(.cabin-canvas, .cabin-announce, .cabin-seat, .cabin-cue, .cabin-door-frame, .air-ticket-replay) { display: none; }
 html[data-fast='on'] .cabin-door { position: relative; min-height: 100vh; min-height: 100svh; visibility: visible !important; }
 html[data-fast='on'] .cabin-door .air-ticket { transform: none; opacity: 1; }
 .fast-toggle {
@@ -254,6 +314,15 @@ html[data-fast='on'] main > #about { order: 5; }
 html[data-fast='on'] main > .explog-next { display: none; }
 html[data-fast='on'] .cabin-door { padding-top: 120px; }
 
+/* The ticket's way in: a clear button, not small print. */
+.air-link.air-ticket-replay {
+  display: inline-flex; align-items: center; gap: 8px; margin-top: 18px; padding: 12px 20px; border-radius: 999px; background: #4e385d; color: #fff; text-decoration: none;
+  font: 600 12px/1 Inter, sans-serif; letter-spacing: .1em; text-transform: uppercase; box-shadow: 0 12px 22px -14px rgba(40, 24, 60, .8); transition: background .2s ease, transform .2s ease;
+}
+.air-link.air-ticket-replay:hover { background: #5f4772; transform: translateY(-1px); }
+.air-link.air-ticket-replay span { animation: cue-nudge 1.6s ease-in-out infinite; }
+@media (prefers-reduced-motion: reduce) { .air-link.air-ticket-replay span { animation: none; } }
+
 /* Return-to-seat ending after the Flight Log. */
 .flight-return { display: grid; justify-items: center; gap: 12px; padding: 28px 16px 72px; text-align: center; }
 .flight-return-btn { font: 600 15px/1 Inter, sans-serif; color: #2b2118; background: #ffd38a; border: 0; border-radius: 999px; padding: 14px 22px; cursor: pointer; box-shadow: 0 12px 24px -14px rgba(20, 14, 30, .6); transition: transform .2s ease, background .2s ease; }
@@ -285,8 +354,5 @@ html[data-sky='day'] .explog-next-inner, html[data-sky='day'] .flight-return-hin
   .air-home .nav-links a { font-size: .8rem; }
   .air-home .nav-links .nav-break { display: block; flex-basis: 100%; height: 0; }
   .fast-toggle, .air-home .nav-links a.nav-contact { padding: 7px 10px; font-size: 11px; }
-  .cabin-seat { padding-top: 112px; }
-  .seat-status { letter-spacing: .08em; font-size: 8.5px; }
-  .seat-tray { padding-bottom: 92px; }
   .cabin.is-seated .cabin-cue { bottom: 44px; }
 }

@@ -4,7 +4,7 @@
 //   walk    down the aisle (drawn on a <canvas> with a tiny perspective
 //           renderer: no DOM 3D, so no seams, gaps or sorting glitches).
 //           Cabin announcements introduce Avanie along the way.
-//   sit     turn left into 01A
+//   sit     turn left into 2A
 //   seat    the seat is the site menu. Items open their content in a panel
 //           over the seat, so nothing navigates away.
 //   window  lean in: the Three.js window (air-scene.js) opens and zooms out
@@ -34,8 +34,8 @@ const ROWS = 4, PITCH = 360, REAR = 420;
 const rowZ = k => -170 - (ROWS - k) * PITCH;           // back face of row k
 const BLOCK_IN = AISLE + 16, BLOCK_OUT = W - 34;         // seat pair spans |x| between these
 const FRONT = rowZ(1) - 440;                            // bulkhead
-const STAND_Z = rowZ(1) + 230;                       // just behind row 01
-const SEAT = { x: -(W - 132), y: 96, z: rowZ(1) - 90 };
+const STAND_Z = rowZ(2) + 230;                       // just behind row 02: the walk stops here
+const SEAT = { x: -(W - 132), y: 96, z: rowZ(2) - 90 };
 const NEAR = 6;
 
 const PALETTES = {
@@ -72,10 +72,10 @@ function cameraAt(t) {
   const walk = smooth(range(t, T.walk - 6, T.sit));
   let x = 0, y = 0, z = mix(REAR - 70, STAND_Z, walk), yaw = 0;
   y += Math.sin(walk * 30) * 3 * Math.sin(Math.PI * walk);   // gentle step bob
-  // Settle toward 01A: ease forward, left and down while the seat view fades in.
+  // Settle toward 2A: ease forward, left and down while the seat view fades in.
   const sit = smooth(range(t, T.sit, T.seat));
   if (sit > 0) {
-    x = mix(0, -150, sit); y = mix(y, 46, sit); z = mix(STAND_Z, rowZ(1) + 90, sit);
+    x = mix(0, -150, sit); y = mix(y, 46, sit); z = mix(STAND_Z, rowZ(2) + 90, sit);
   }
   return { x, y, z, yaw: yaw * Math.PI / 180 };
 }
@@ -184,6 +184,31 @@ function createRenderer(canvas) {
       poly([[-W, CEIL, FRONT], [W, CEIL, FRONT], [W, FLOOR, FRONT], [-W, FLOOR, FRONT]], vGrad(P.bulk, P.bulkLo), [0, 0, 1]);
       poly([[-W, CEIL, FRONT + .5], [W, CEIL, FRONT + .5], [W, CEIL + 34, FRONT + .5], [-W, CEIL + 34, FRONT + .5]], P.mood, [0, 0, 1]);
       for (const sx of [-BIN_X, BIN_X]) poly(quadXYZ(sx - 1.5, sx + 1.5, CEIL + 34, FLOOR - 1, FRONT + .8), P.bulkLo, [0, 0, 1]);
+      // Crew door: a recessed, rounded panel centred on the far wall. Decorative
+      // only (no handle, nothing to press); it gives the aisle a quiet focal point.
+      {
+        const hw = 92, y0 = -96, y1 = FLOOR - 10, r = 24, rr = (x0, x1, ya, yb, z, rad, n = 5) => {
+          const pts = [], corner = (cx, cy, a0) => { for (let i = 0; i <= n; i++) { const a = a0 + (i / n) * Math.PI / 2; pts.push([cx + Math.cos(a) * rad, cy + Math.sin(a) * rad, z]); } };
+          corner(x1 - rad, ya + rad, -Math.PI / 2); corner(x1 - rad, yb - rad, 0); corner(x0 + rad, yb - rad, Math.PI / 2); corner(x0 + rad, ya + rad, Math.PI);
+          return pts;
+        };
+        const N = [0, 0, 1], dz = FRONT, depthZ = 12;
+        for (const [g, a] of [[30, .05], [18, .06], [9, .08]]) poly(rr(-hw - g, hw + g, y0 - g, y1 + g * .4, dz + .5, r + g), `rgba(28, 20, 44, ${a})`, N);   // soft shadow on the wall
+        poly(rr(-hw - 8, hw + 8, y0 - 8, y1 + 6, dz + 1, r + 8), vGrad(rgb(P.bulk, .3, '#ffffff'), rgb(P.bulkLo, .15, '#ffffff')), N);                     // bezel
+        poly(rr(-hw, hw, y0, y1, dz + 1.2, r), rgb(P.bulkLo, .42, '#000000'), N);                                                                            // opening
+        poly(quadX(-hw, y0 + r, y1 - r, dz + 1.2, dz - depthZ), rgb(P.bulkLo, .3, '#000000'), [1, 0, 0]);                                                   // recess sides
+        poly(quadX(hw, y0 + r, y1 - r, dz + 1.2, dz - depthZ), rgb(P.bulkLo, .3, '#000000'), [-1, 0, 0]);
+        poly(quadY(y0, -hw + r, hw - r, dz + 1.2, dz - depthZ), rgb(P.bulkLo, .5, '#000000'), [0, 1, 0]);
+        poly(rr(-hw + 2, hw - 2, y0 + 2, y1 - 2, dz - depthZ, r - 2), vGrad(rgb(P.bulk, .12, '#000000'), rgb(P.bulkLo, .1, '#000000')), N);             // door leaf
+        poly(rr(-hw + 18, hw - 18, y0 + 20, y1 - 22, dz - depthZ - .4, r - 10), vGrad(rgb(P.bulk, .04, '#000000'), rgb(P.bulk, .16, '#000000')), N);      // inset panel
+        poly(quadXYZ(-hw + 26, hw - 26, y0 + 118, y0 + 119.5, dz - depthZ - .8), 'rgba(40, 30, 60, .16)', N);                                                // a single seam
+        // A very small airplane mark above a very small label.
+        const iy = y0 + 58, mark = 'rgba(255, 255, 255, .5)';
+        poly([[0, iy - 12, dz - depthZ - 1], [2, iy - 6, dz - depthZ - 1], [2, iy + 9, dz - depthZ - 1], [-2, iy + 9, dz - depthZ - 1], [-2, iy - 6, dz - depthZ - 1]], mark, N);
+        poly([[0, iy - 3, dz - depthZ - 1], [15, iy + 8, dz - depthZ - 1], [15, iy + 11, dz - depthZ - 1], [0, iy + 5, dz - depthZ - 1], [-15, iy + 11, dz - depthZ - 1], [-15, iy + 8, dz - depthZ - 1]], mark, N);
+        poly([[0, iy + 8, dz - depthZ - 1], [6, iy + 16, dz - depthZ - 1], [6, iy + 18, dz - depthZ - 1], [0, iy + 15, dz - depthZ - 1], [-6, iy + 18, dz - depthZ - 1], [-6, iy + 16, dz - depthZ - 1]], mark, N);
+        label([0, iy + 40, dz - depthZ - 1], 'CREW ONLY', 6.5, 'rgba(255, 255, 255, .55)');
+      }
       label([0, -290, FRONT + 1], 'FASTEN SEATBELT', 10, P.sign, '#1d1a24');
       label([0, -150, FRONT + 1], 'AVANIE AIR', 42, P.brand);
       // Distance haze toward the far end of the cabin.
@@ -223,7 +248,7 @@ function createRenderer(canvas) {
           poly(quadXYZ(cx - hw * .7, cx + hw * .7, PAN - 34, PAN + 6, zz + n[2] * .6), rgb(P.seat, Math.min(1, t + .08), '#000000'), n);
         }
       };
-      if (o.k === 1) {                                            // row 01 is seen from the front as you sit
+      if (o.k === 2) {                                            // row 02 is the row you sit in
         for (const cx of [(x0 + xm) / 2, (xm + x1) / 2]) poly(quadY(PAN, cx - (xm - x0) / 2 + 10, cx + (xm - x0) / 2 - 10, z - 14, z - 124), f(P.seatHi), [0, -1, 0]);
         for (const ax of [x0 + 7, xm, x1 - 7]) poly(quadY(PAN - 26, ax - 8, ax + 8, z - 10, z - 112), f(P.seatSide), [0, -1, 0]);
         backs(z - 10, [0, 0, -1]);
@@ -246,33 +271,51 @@ if (section) {
   const canvas = section.querySelector('[data-cabin-canvas]');
   const door = section.querySelector('[data-cabin-door]');
   const seat = section.querySelector('[data-cabin-seat]');
-  const windowHost = section.querySelector('[data-cabin-window]');
+  const canvasHost = seat.querySelector('[data-seat-canvas]');
   const cue = section.querySelector('[data-cabin-cue]');
   const notes = [...section.querySelectorAll('[data-cabin-announce] > li')];
   const renderer = createRenderer(canvas);
 
   let boarded = false;
   try { boarded = sessionStorage.getItem('avanie-air-boarded') === '1'; } catch { /* fine */ }
-  let target = 0, current = 0, raf = 0, scene = null, loading = null, lastCue = '', lastDraw = '';
+  let target = 0, current = 0, raf = 0, scene = null, loading = null, lastCue = cue.textContent, lastDraw = '';
   const fast = () => root.dataset.fast === 'on';
   const vh = () => innerHeight / 100;
   const startUnit = () => (boarded ? T.seat : 0);
 
+  const world = seat.querySelector('[data-seat-world]');
+  const seatBack = seat.querySelector('.seat-back');
+  const winBtn = seat.querySelector('[data-seat-window]');
   function layout() {
     section.style.height = `${(T.end - startUnit()) * vh() + innerHeight}px`;
     section.classList.toggle('is-boarded', boarded);
-    placeHole();
+    placeSeat();
+    placeWindow();
   }
-  // Cut the wall's window hole where the glass actually sits (undoing any lean scale).
-  const glass = seat.querySelector('.seat-window-glass');
-  function placeHole() {
-    const scale = 1 + (parseFloat(seat.style.getPropertyValue('--lean')) || 0) * 1.4;
-    const s = seat.getBoundingClientRect(), g = glass.getBoundingClientRect();
-    if (!g.width) return;
-    seat.style.setProperty('--hole-x', `${((g.left + g.width / 2 - s.left) / scale).toFixed(1)}px`);
-    seat.style.setProperty('--hole-y', `${((g.top + g.height / 2 - s.top) / scale).toFixed(1)}px`);
-    seat.style.setProperty('--hole-rx', `${(g.width / 2 / scale + 10).toFixed(1)}px`);
-    seat.style.setProperty('--hole-ry', `${(g.height / 2 / scale + 10).toFixed(1)}px`);
+  // The seat is the main object: scale it so it fills the view under the header,
+  // with the lower pouch running a little off the bottom edge.
+  function placeSeat() {
+    if (!seatBack) return;
+    const head = document.querySelector('.site-header')?.offsetHeight || 0;
+    const bleed = 46, total = seatBack.offsetHeight + 34 - bleed;      // 34 = headrest above the seat
+    const phone = innerWidth <= 760;
+    const k = Math.min((innerHeight - head - 10) / total, (innerWidth * (phone ? 1.02 : 0.6)) / 470, 2.2);
+    seat.style.setProperty('--s', k.toFixed(3));
+    seatBack.style.setProperty('--bleed', `${(-bleed * k).toFixed(1)}px`);
+  }
+  // Where the window sits in the wall, and how big it is. The Blender model draws
+  // it (air-scene.js); the button is only its hit area.
+  function placeWindow() {
+    if (!world || !winBtn) return;
+    const W = innerWidth, H = world.clientHeight || innerHeight, phone = W <= 760;
+    const cx = W * (phone ? 0.7 : 0.61), cy = H * (phone ? 0.4 : 0.44);
+    const ap = phone ? Math.min(190, H * 0.26) : Math.min(400, Math.max(230, H * 0.36));
+    const aspect = scene?.aspect || 0.59;
+    world.style.setProperty('--win-cx', `${cx.toFixed(1)}px`);
+    world.style.setProperty('--win-cy', `${cy.toFixed(1)}px`);
+    world.style.setProperty('--win-w', `${(ap * aspect).toFixed(1)}px`);
+    world.style.setProperty('--win-h', `${ap.toFixed(1)}px`);
+    scene?.place({ width: W * 1.7, height: H, cx, cy, aperturePx: ap, view: { w: W, h: H, cy } });
   }
   const timeAt = () => clamp(startUnit() + (scrollY - section.offsetTop) / vh(), startUnit(), T.end);
   function scrollToUnit(u, behavior = 'smooth') {
@@ -300,12 +343,19 @@ if (section) {
     current = target = timeAt(); render();
   }
 
+  let windowFailed = false;                  // WebGL missing or blocked: keep the plain CSS window, never retry
   async function ensureWindow() {
-    if (scene || loading) return loading;
+    if (scene || loading || windowFailed) return loading;
     loading = import('./air-scene.js')
-      .then(({ createWindow }) => createWindow(windowHost, () => scrollToUnit(T.end)))
-      .then(created => { scene = created; loading = null; render(); return created; })
-      .catch(error => { console.warn('3D window unavailable', error); loading = null; });
+      .then(({ createWindow }) => createWindow(canvasHost, null, { anchored: true }))
+      .then(created => {
+        scene = created; loading = null;
+        world.classList.add('has-3d');
+        created.setShade(seat.dataset.shade === 'open', false);
+        placeWindow(); render();
+        return created;
+      })
+      .catch(error => { console.warn('3D window unavailable', error); loading = null; windowFailed = true; });
     return loading;
   }
   function setCue(text) { if (text !== lastCue) cue.textContent = lastCue = text; }
@@ -315,6 +365,11 @@ if (section) {
     const t = current;
     const seatIn = smooth(range(t, T.seat - 16, T.seat));
     const lean = smooth(range(t, T.lean, T.window));
+    // Leaning into the window always happens from the window view.
+    if (lean > 0.01 && seat.dataset.view !== 'left') setView('left');
+    if (lean > 0.01 && seat.dataset.shade !== 'open') setShade(true);   // the scene outside needs the shade up
+    // Coming back to the seat closes the shade again.
+    if (t < T.lean - 1 && seat.dataset.shade === 'open' && !shadePending && !drifting) setShade(false);
 
     // Aisle canvas, drawn only while visible and only when the camera moved.
     // The canvas stays opaque under the fading seat view, then hides so the
@@ -348,24 +403,25 @@ if (section) {
     seat.classList.toggle('is-live', seatIn > .6 && lean < .4);
     section.classList.toggle('is-seated', t >= T.seat - 2 && t < T.lean);
 
-    // 3D window: preload during the sit, fade in on the lean, then scrub it.
+    // The window is the model in the wall: preload it during the sit, then leaning
+    // in is just the model scaling up around its opening (the shade opens first).
     if (t > T.sit - 10) ensureWindow();
-    const winIn = smooth(range(t, T.lean + 4, T.window)), winOut = range(t, T.end - 3, T.end);
-    windowHost.style.opacity = (winIn * (1 - winOut)).toFixed(3);
-    windowHost.style.visibility = winIn > 0 && winOut < 1 ? 'visible' : 'hidden';
-    scene?.setProgress(range(t, T.window, T.end - 3));
+    const winOut = range(t, T.end - 3, T.end);
+    seat.style.setProperty('--out', winOut.toFixed(3));
+    scene?.setZoom(range(t, T.lean, T.end - 3));
     root.classList.toggle('cabin-window', t > T.lean + 4 && t < T.end - 1);
     section.dataset.state = t >= T.window && t < T.end - 3 ? 'opening' : t >= T.end - 3 ? 'flight' : 'cabin';
 
     // Every step says what scrolling does next.
-    if (t < 10) setCue('Scroll to board');
+    if (t < 10) setCue(matchMedia('(pointer: coarse)').matches ? 'Swipe up to walk in' : 'Scroll to walk in');
     else if (t < T.sit) {
-      const row = clamp(Math.round((cameraAt(t).z - rowZ(1)) / PITCH) + 1, 1, ROWS);
-      setCue(`Row ${String(row).padStart(2, '0')} · keep scrolling to seat 01A`);
-    } else if (t < T.lean) setCue('Tap to explore · scroll to look outside');
-    else if (t < T.end - 3) setCue(t < T.window ? 'Keep scrolling to open the window' : 'Keep scrolling to fly into the Experience Log');
+      const row = clamp(Math.floor((cameraAt(t).z - rowZ(2)) / PITCH) + 2, 2, ROWS);
+      setCue(`Row ${String(row).padStart(2, '0')} · keep scrolling to seat 2A`);
+    } else if (t < T.lean) setCue('');   // the view buttons say what to do
+    else if (t < T.end - 3) setCue(drifting ? '' : t < T.window ? 'Keep scrolling to open the window' : 'Keep scrolling along the Flight Path');
     else setCue('');
     cue.style.opacity = t < T.end - 3 ? '1' : '0';
+    cue.toggleAttribute('data-launch', t < 10);       // bigger and pulsing until they start walking
   }
 
   function tick() {
@@ -375,7 +431,7 @@ if (section) {
     render();
     if (current !== target) raf = requestAnimationFrame(tick);
   }
-  // ── Out of the window: drift down to the Experience Log ─────────────────
+  // ── Out of the window: drift down to the Flight Path ─────────────────
   // When the window scene ends the log is a screen further down with nothing
   // pointing to it. On a mouse or trackpad, glide there slowly. Scrolling up,
   // a key press or a click hands control straight back.
@@ -383,8 +439,8 @@ if (section) {
   const pointerFine = matchMedia('(hover: hover) and (pointer: fine)');
   let drifting = false, drifted = false, lastY = scrollY;
   const stopDrift = () => { drifting = false; };
-  function driftToLog() {
-    if (drifting || drifted || returning || opened || fast() || !glideWrap || !pointerFine.matches) return;
+  function driftToLog(force = false) {
+    if (drifting || (drifted && !force) || returning || opened || fast() || !glideWrap || !pointerFine.matches) return;
     drifted = true;
     const header = document.querySelector('.site-header');
     const gliding = glideWrap.classList.contains('is-gliding');
@@ -392,13 +448,35 @@ if (section) {
     const from = scrollY, reduce = matchMedia('(prefers-reduced-motion: reduce)').matches;
     if (reduce || to - from < 40) { scrollTo({ top: to, behavior: 'instant' }); return; }
     drifting = true;
-    const dur = Math.min(3200, 1800 + (to - from) * 0.9), t0 = performance.now();
+    const dur = Math.min(950, 550 + (to - from) * 0.3), t0 = performance.now();
     const ease = x => (x < 0.5 ? 4 * x * x * x : 1 - Math.pow(-2 * x + 2, 3) / 2);
     const step = now => {
       if (!drifting) return;
       const k = Math.min(1, (now - t0) / dur);
       scrollTo({ top: from + (to - from) * ease(k), behavior: 'instant' });
       if (k < 1) requestAnimationFrame(step); else drifting = false;
+    };
+    requestAnimationFrame(step);
+  }
+  // Open Shade: one slow, continuous move. The camera leans into the glass (the
+  // model scales up around its opening), holds on the sky, then the page glides
+  // down to the Experience Log by itself. The seat view is static until the lean
+  // begins, so that stretch is skipped rather than scrolled through.
+  function flyOut() {
+    if (drifting || returning || opened || fast()) return;
+    drifted = true; drifting = true;
+    const unitY = u => section.offsetTop + (u - startUnit()) * vh();
+    const from = Math.max(scrollY, unitY(T.lean - 0.4)), to = unitY(T.end - 2.4);
+    scrollTo({ top: from, behavior: 'instant' });
+    target = current = timeAt();
+    if (matchMedia('(prefers-reduced-motion: reduce)').matches) { scrollTo({ top: to, behavior: 'instant' }); drifting = false; driftToLog(true); return; }
+    const dur = 1450, t0 = performance.now();
+    const ease = x => (x < 0.5 ? 4 * x * x * x : 1 - Math.pow(-2 * x + 2, 3) / 2);
+    const step = now => {
+      if (!drifting) return;
+      const k = Math.min(1, (now - t0) / dur);
+      scrollTo({ top: from + (to - from) * ease(k), behavior: 'instant' });
+      if (k < 1) requestAnimationFrame(step); else { drifting = false; driftToLog(true); }
     };
     requestAnimationFrame(step);
   }
@@ -417,6 +495,69 @@ if (section) {
     if (!boarded && target >= T.seat + 3) { board(); target = timeAt(); current = Math.max(current, T.seat); }
     if (!raf) raf = requestAnimationFrame(tick);
   }
+
+  // ── Camera views: forward (seat) and left (window) ───────────────────────
+  // Fixed angles, no free look. The three buttons change with the view.
+  const btnPrev = seat.querySelector('[data-view-prev]');
+  const btnMain = seat.querySelector('[data-view-main]');
+  const btnNext = seat.querySelector('[data-view-next]');
+  const VIEWS = {
+    forward: { prev: { label: '← Look Left', to: 'left' }, main: null, next: null },
+    left: { prev: null, main: { shade: true }, next: { label: 'Return Forward →', to: 'forward' } },
+  };
+  let shadePending = false;
+  function paintViews() {
+    const view = seat.dataset.view, v = VIEWS[view] || VIEWS.forward;
+    for (const [btn, def] of [[btnPrev, v.prev], [btnNext, v.next]]) {
+      btn.hidden = !def; if (def) btn.textContent = def.label;
+    }
+    btnMain.hidden = !v.main;
+    if (v.main) btnMain.textContent = seat.dataset.shade === 'open' ? 'Close Shade' : 'Open Shade';
+    // Looking left is the one thing to do from the forward view, so it leads.
+    btnPrev.classList.toggle('seat-view-btn--main', view === 'forward');
+  }
+  function setView(name) {
+    if (!VIEWS[name] || seat.dataset.view === name) return;
+    seat.dataset.view = name;
+    paintViews();
+  }
+  function setShade(open) {
+    seat.dataset.shade = open ? 'open' : 'closed';
+    scene?.setShade(open);
+    paintViews();
+  }
+  // Opening the shade shows the sky, then the view leans out to the Experience Log.
+  function toggleShade() {
+    if (seat.dataset.shade === 'open') { setShade(false); return; }
+    setShade(true);
+    shadePending = true;
+    setTimeout(() => {
+      shadePending = false;
+      if (seat.dataset.shade === 'open' && !fast() && !opened) flyOut();
+    }, 350);
+  }
+  btnPrev.addEventListener('click', () => setView(VIEWS[seat.dataset.view].prev?.to));
+  btnNext.addEventListener('click', () => setView(VIEWS[seat.dataset.view].next?.to));
+  btnMain.addEventListener('click', toggleShade);
+  // The window itself is a control too: look toward it, then open the shade.
+  seat.querySelector('[data-seat-window]')?.addEventListener('click', () => {
+    if (seat.dataset.view === 'left') toggleShade(); else setView('left');
+  });
+  addEventListener('keydown', event => {
+    if (fast() || opened || !seat.classList.contains('is-live') || event.altKey || event.ctrlKey || event.metaKey) return;
+    const v = seat.dataset.view;
+    if (event.key === 'ArrowLeft' && v === 'forward') setView('left');
+    else if (event.key === 'ArrowRight' && v === 'left') setView('forward');
+  });
+  // Tabbing to something that is off-screen turns the camera to it. Overflow
+  // clipping must never scroll the cabin sideways by itself.
+  seat.addEventListener('focusin', event => {
+    if (!event.target.matches(':focus-visible')) return;
+    if (event.target.closest('.seat-back')) setView('forward');
+    else if (event.target.closest('.seat-window')) setView('left');
+  });
+  seat.addEventListener('scroll', () => { seat.scrollLeft = 0; seat.scrollTop = 0; });
+  paintViews();
 
   // ── Panels: seat items open their content over the seat ─────────────────
   const panel = document.querySelector('[data-cabin-panel]');
@@ -478,7 +619,7 @@ if (section) {
   // ── End of the flight: head back inside ─────────────────────────────────
   // After the Flight Log the page does not continue. Scrolling on past the end
   // (or the button) jumps to the open window and eases back: the window closes
-  // and you are seated in 01A again.
+  // and you are seated in 2A again.
   let returning = false, pull = 0, touchY = null;
   const meter = document.querySelector('[data-cabin-return-meter]');
   const setMeter = v => { if (meter) meter.style.width = `${Math.round(Math.min(1, v) * 100)}%`; };
@@ -533,14 +674,32 @@ if (section) {
   addEventListener('keydown', e => { if (['ArrowDown', 'PageDown', ' ', 'End'].includes(e.key)) tug(160); });
   document.querySelector('[data-cabin-return]')?.addEventListener('click', returnToSeat);
 
+  // "Walk to seat 2A": a slow, eased walk down the aisle for visitors who do not
+  // scroll. It works in timeline units (the layout changes when you sit), and any
+  // wheel, touch, key or click hands control straight back.
+  let walking = false;
+  function walkToSeat() {
+    if (fast()) return;
+    const u0 = timeAt(), u1 = T.seat + 6, t0 = performance.now(), dur = 4600;
+    if (matchMedia('(prefers-reduced-motion: reduce)').matches) { scrollToUnit(u1, 'instant'); return; }
+    const ease = x => (x < 0.5 ? 4 * x * x * x : 1 - Math.pow(-2 * x + 2, 3) / 2);
+    walking = true;
+    const step = now => {
+      if (!walking) return;
+      const k = Math.min(1, (now - t0) / dur), u = u0 + (u1 - u0) * ease(k);
+      scrollTo({ top: section.offsetTop + (u - startUnit()) * vh(), behavior: 'instant' });
+      if (k < 1) requestAnimationFrame(step); else walking = false;
+    };
+    requestAnimationFrame(step);
+  }
+  for (const type of ['wheel', 'touchstart', 'keydown', 'pointerdown']) addEventListener(type, () => { walking = false; }, { passive: true });
   section.querySelector('[data-cabin-go="seat"]')?.addEventListener('click', event => {
-    if (fast()) return; event.preventDefault(); scrollToUnit(T.seat + 6);
+    if (fast()) return; event.preventDefault(); walkToSeat();
   });
-  section.querySelector('[data-cabin-go="window"]')?.addEventListener('click', () => scrollToUnit(T.end));
   section.querySelector('[data-cabin-reboard]')?.addEventListener('click', reboard);
   seat.addEventListener('focusin', () => { const t = timeAt(); if (t < T.seat || t > T.lean) scrollToUnit(T.seat + 6, 'instant'); });
 
-  document.fonts?.ready.then(placeHole);
+  document.fonts?.ready.then(() => { placeSeat(); placeWindow(); });
   function start() {
     if (fast()) { closePanel(false); section.style.height = ''; scene?.dispose(); scene = null; root.classList.remove('cabin-window'); return; }
     layout(); renderer.resize(); lastDraw = '';

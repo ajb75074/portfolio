@@ -90,7 +90,7 @@
         <div class="air-deck-moonpath"></div>
       </div>
       <div class="air-haze"></div>
-      <!-- Seat 01A is on the left (port) side, so this is the left wing. -->
+      <!-- Seat 2A is on the left (port) side, so this is the left wing. -->
       <svg class="air-wing" viewBox="0 0 1000 520" preserveAspectRatio="xMaxYMax meet" focusable="false">
         <defs>
           <linearGradient id="air-wing-skin" x1="0" y1="0" x2="0.35" y2="1">
@@ -175,7 +175,7 @@
       <div class="cabin-panel-card">
         <div class="cabin-panel-bar">
           <p id="cabin-panel-title" class="cabin-panel-title" data-cabin-panel-title></p>
-          <button class="cabin-panel-close" type="button" data-cabin-panel-close>Back to seat 01A</button>
+          <button class="cabin-panel-close" type="button" data-cabin-panel-close>Back to seat 2A</button>
         </div>
         <div class="cabin-panel-body" data-cabin-panel-body></div>
       </div>
@@ -183,7 +183,7 @@
 
     <main>
       <!-- ── Boarding: one scroll-driven story ──────────────────────────────
-           Door (boarding pass) → walk the aisle → sit in 01A (the seat is the
+           Door (boarding pass) → walk the aisle → sit in 2A (the seat is the
            menu) → lean in, the shade rises, zoom through the window → the
            rest of the page is the flight, over the moving sky.
            air-cabin.js drives it; Fast track mode skips it. -->
@@ -210,11 +210,11 @@
                   <div><dt>Role</dt><dd>UX / Product Designer &amp; Software Engineer</dd></div>
                 </dl>
                 <dl class="air-ticket-details">
-                  <div><dt>Seat</dt><dd>01A</dd></div>
+                  <div><dt>Seat</dt><dd>2A</dd></div>
                   <div><dt>Gate</dt><dd>B42</dd></div>
                   <div><dt>Destination</dt><dd>PROJECTS</dd></div>
                 </dl>
-                <a class="air-link air-ticket-replay" href="#seat" data-cabin-go="seat">Find seat 01A &darr;</a>
+                <a class="air-link air-ticket-replay" href="#seat" data-cabin-go="seat">Walk to seat 2A <span aria-hidden="true">&darr;</span></a>
               </div>
               <aside class="air-ticket-stub" aria-hidden="true">
                 <svg class="air-perforation" viewBox="0 0 32 600" preserveAspectRatio="none" focusable="false">
@@ -229,45 +229,47 @@
             </article>
           </div>
 
-          <nav id="seat" class="cabin-seat" data-cabin-seat aria-label="Seat 01A">
-            <!-- Cabin headliner: quiet architecture, no controls. -->
-            <div class="seat-psu" aria-hidden="true">
-              <span class="seat-psu-lamp"></span><span class="seat-psu-lamp"></span>
-            </div>
+          <nav id="seat" class="cabin-seat" data-cabin-seat data-view="forward" data-shade="closed" aria-label="Seat 2A">
+            <!-- One wide cabin wall that the camera pans across: the seat in front of
+                 you, the window to your left. -->
+            <div class="seat-world" data-seat-world>
+              <!-- The window is the Blender model (public/models/air-window.glb), drawn by
+                   air-scene.js as part of this wall. The button is only its hit area. -->
+              <div class="seat-world-canvas" data-seat-canvas aria-hidden="true"></div>
+              <button class="seat-window seat-hot" type="button" data-seat-window aria-label="Look out the window">
+                <span class="seat-hot-tag">Look outside · Flight Path</span>
+              </button>
 
-            <button class="seat-window seat-hot" type="button" data-cabin-go="window" aria-label="Look out the window">
-              <span class="seat-window-frame"><span class="seat-window-glass"></span><span class="seat-window-shade"><span></span></span></span>
-              <span class="seat-hot-tag">Look outside · Experience Log</span>
-            </button>
-
-            <div class="seat-bulkhead">
-              <div class="seat-bulkhead-id">
-                <p class="seat-bulkhead-brand" aria-hidden="true">AVANIE AIR</p>
-                <p class="seat-status">Seat 01A · UX / Product Designer &amp; Software Engineer</p>
-              </div>
-              <div class="seat-pocket">
+              <!-- The seatback in front of 2A: headrest, screen (Projects), then the storage pouch. -->
+              <div class="seat-back">
+                <span class="seat-back-head" aria-hidden="true"></span>
+                <div class="seat-back-shell">
+                <button class="seat-tablet seat-hot" type="button" data-panel="projects" data-panel-title="In-flight entertainment · Projects">
+                  <span class="seat-tablet-screen" aria-hidden="true">
+                    <span class="seat-tablet-bar"><span>Avanie Air</span><span>In-flight entertainment</span></span>
+                    <span class="seat-tablet-map"><svg viewBox="0 0 200 70" focusable="false"><path class="seat-tablet-route" d="M14 56 C 60 6, 140 6, 186 44" /><circle cx="14" cy="56" r="3" /><circle cx="186" cy="44" r="3" /><path class="seat-tablet-plane" d="M0 -5 L3 0 L0 5 L-1 1 L-5 1 L-6 3 L-7 3 L-6 0 L-7 -3 L-6 -3 L-5 -1 L-1 -1 Z" transform="translate(112 17) rotate(12)" /></svg></span>
+                    <span class="seat-tablet-cta">Tap to watch · Projects</span>
+                  </span>
+                  <span class="seat-hot-tag">Projects</span>
+                </button>
+                </div>
+                <div class="seat-pocket">
+                <button class="seat-item seat-item--passport seat-hot" type="button" data-panel="about" data-panel-title="Passport"><span class="seat-item-art" aria-hidden="true"><b>PASSPORT</b><i></i></span><span class="seat-hot-tag">Passport</span></button>
                 <button class="seat-item seat-item--postcard seat-hot" type="button" data-panel="latest-trip" data-panel-title="Postcard · Latest trip"><span class="seat-item-art" aria-hidden="true">Wish you<br />were here</span><span class="seat-hot-tag">Latest trip</span></button>
                 <a class="seat-item seat-item--docs seat-hot" href="assets/Baptiste_Avanie_Resume.pdf" target="_blank" rel="noopener noreferrer"><span class="seat-item-art" aria-hidden="true">Travel<br />documents<small>PDF</small></span><span class="seat-hot-tag">Resume</span></a>
-                <span class="seat-pocket-mesh" aria-hidden="true"></span>
+                  <span class="seat-pocket-front" aria-hidden="true"></span>
+                </div>
               </div>
             </div>
 
-            <div class="seat-tray">
-              <button class="seat-tablet seat-hot" type="button" data-panel="projects" data-panel-title="In-flight entertainment · Projects">
-                <span class="seat-tablet-screen" aria-hidden="true">
-                  <span class="seat-tablet-bar"><span>Avanie Air</span><span>In-flight entertainment</span></span>
-                  <span class="seat-tablet-map"><svg viewBox="0 0 200 70" focusable="false"><path class="seat-tablet-route" d="M14 56 C 60 6, 140 6, 186 44" /><circle cx="14" cy="56" r="3" /><circle cx="186" cy="44" r="3" /><path class="seat-tablet-plane" d="M0 -5 L3 0 L0 5 L-1 1 L-5 1 L-6 3 L-7 3 L-6 0 L-7 -3 L-6 -3 L-5 -1 L-1 -1 Z" transform="translate(112 17) rotate(12)" /></svg></span>
-                  <span class="seat-tablet-cta">Tap to watch · Projects</span>
-                </span>
-                <span class="seat-hot-tag">Projects</span>
-              </button>
-              <button class="seat-passport seat-hot" type="button" data-panel="about" data-panel-title="Passport"><span class="seat-passport-art" aria-hidden="true"><b>PASSPORT</b><i></i></span><span class="seat-hot-tag">Passport</span></button>
-              <span class="seat-cup" aria-hidden="true"></span>
+            <!-- Camera controls: they change with the view (air-cabin.js). -->
+            <div class="seat-views" role="group" aria-label="Cabin views">
+              <button class="seat-view-btn" type="button" data-view-prev></button>
+              <button class="seat-view-btn seat-view-btn--main" type="button" data-view-main></button>
+              <button class="seat-view-btn" type="button" data-view-next></button>
             </div>
             <button class="seat-reboard" type="button" data-cabin-reboard>Board again from the door</button>
           </nav>
-
-          <div class="cabin-window-3d" data-cabin-window aria-hidden="true"></div>
 
           <p class="cabin-cue" data-cabin-cue aria-live="polite">Scroll to board</p>
         </div>
@@ -278,9 +280,9 @@
       <div class="explog-glide" data-explog-glide>
       <section id="experiences" class="explog-section" aria-labelledby="explog-title" data-explog-section>
         <div class="explog-heading">
-          <p class="explog-eyebrow">Avanie Air / Flight Log</p>
-          <h2 id="explog-title">Experience Log</h2>
-          <p class="explog-subtitle">The people, places, and teams that shaped my professional journey.</p>
+          <p class="explog-eyebrow">Avanie Air / Flight Path</p>
+          <h2 id="explog-title">Career Journey</h2>
+          <p class="explog-subtitle">The experiences, people, and places that shaped my path.</p>
         </div>
 
         <div class="explog-dashboard" data-explog-dashboard>
@@ -480,7 +482,6 @@
               </li>
             </ol>
           </div>
-          <p class="explog-progress-text" data-explog-progress aria-live="polite">FLIGHT LOG · 01 / 09</p>
         </div>
 
         <div class="explog-divider" aria-hidden="true"></div>
@@ -535,7 +536,7 @@
         </div>
         <!-- End of the flight: back into the cabin (air-cabin.js). -->
         <div class="flight-return" data-flight-return>
-          <button type="button" class="flight-return-btn" data-cabin-return>Return to seat 01A</button>
+          <button type="button" class="flight-return-btn" data-cabin-return>Return to seat 2A</button>
           <p class="flight-return-hint"><span class="flight-return-meter" aria-hidden="true"><i data-cabin-return-meter></i></span>Keep scrolling to head back inside</p>
         </div>
       </div>
@@ -609,7 +610,7 @@
 
               <p class="postcard-label">Post Card</p>
 
-              <span class="postcard-badge">Latest trip · Editor’s pick</span>
+              <span class="postcard-badge">Editor’s pick</span>
               <h3 class="postcard-title">Wishlist</h3>
               <p class="postcard-quote">“your closet, before it’s your closet.”</p>
               <p class="postcard-desc">
@@ -657,7 +658,7 @@
                     <span class="ife-brand">Avanie Air</span>
                     <span class="ife-heading">In-Flight Entertainment</span>
                     <div class="ife-status">
-                      <span class="ife-seat">Seat 01A</span>
+                      <span class="ife-seat">Seat 2A</span>
                       <div class="ife-progress" aria-hidden="true"><span data-ife-progress></span></div>
                     </div>
                   </div>

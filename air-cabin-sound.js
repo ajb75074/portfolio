@@ -66,7 +66,7 @@
     if (!on) setTimeout(() => { if (!on) ctx.suspend(); }, 600);
   }
 
-  // The two-tone seatbelt chime, played when you sit down in 01A (sound on only).
+  // The two-tone seatbelt chime, played when you sit down in 2A (sound on only).
   function ding() {
     if (!on || !ctx) return;
     const now = ctx.currentTime;

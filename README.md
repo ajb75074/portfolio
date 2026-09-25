@@ -83,7 +83,7 @@ visual verification is recorded as blocked in `design-qa.md`.
   `--wing-sink` on scroll so the wing settles lower and dims past the hero.
 - `air-intro.css`: the flat hills are replaced by a night sky, horizon haze,
   moon glint on the cloud tops, three parallax cloud layers drifting toward the
-  tail, and an SVG port wing (seat 01A). During the intro the wing leans into the window
+  tail, and an SVG port wing (seat 2A). During the intro the wing leans into the window
   aperture; it settles back when the boarding pass appears. Cabin lighting
   (warm reading light + dim corners) sits over the 3D wall during the intro.
 - `air-scene.js`: adds an acrylic pane behind the shade with cabin-light
@@ -112,12 +112,17 @@ visual verification is recorded as blocked in `design-qa.md`.
    `air-cabin.js` (near-plane clipping, back-face culling, painter's order).
    No DOM 3D, so no seams or gaps. Five cabin announcements (the `<ol
    data-cabin-announce>` in `index.html`, edit freely) introduce you on the way.
-3. **Seat 01A**: the seat is the menu. The tablet on the tray opens the real
-   in-flight entertainment (Projects), the seat pocket holds Experience,
-   Latest trip and Resume, the passport opens About, the call button opens
-   Contact. Items open in a panel over the seat (the section itself is moved
-   into the panel and put back on close), so nothing navigates away. Header
-   links for Projects and About do the same.
+3. **Seat 2A**: the seatback in front of you is the menu. Its screen opens the
+   real in-flight entertainment (Projects); the storage pouch holds the
+   Passport (About), Latest Trip and Resume. Items open in a panel over the
+   seat (the section itself is moved into the panel and put back on close), so
+   nothing navigates away. Header links for Projects and About do the same.
+   The walk stops at row 2, with row 1's seatbacks and a small crew door on
+   the far wall ahead of you.
+   The hub is one wide cabin wall with a fixed camera (`data-view` on
+   `.cabin-seat`): **forward** (the seat) and **look left** (the window, shade
+   closed until you press Open Shade, which flies out to the Flight Path and
+   drifts down to it on desktop). Arrow keys switch views too.
 4. **Scroll in, not out**: once you reach the seat, the door and aisle leave
    the scroll range for this visit (sessionStorage `avanie-air-boarded`).
    "Board again from the door" replays it.
@@ -138,6 +143,16 @@ be deleted.
   "Explore case study →" CTA plus Design / Engineering tracks.
 - In-flight entertainment (`#projects`): the original poster carousel and
   "Now selected" panel; Wishlist is first with a "Now playing" badge.
+- Naming: **Flight Path** is the whole experience section (the window label and
+  the eyebrow), **Career Journey** is its heading, and **Flight Log** is each
+  individual stop. The header link stays "Experience". (The "FLIGHT LOG · 01 / 09"
+  counter was removed from the card.)
+- Window: the seat's window is the Blender model (`public/models/air-window.glb`,
+  drawn by `air-scene.js` in "anchored" mode as part of the cabin wall). The shade,
+  the lean-in zoom and the sky behind it are all that one object. If WebGL is
+  unavailable a plain closed-shade window stands in.
+- Projects device (`ife.js`): its height is locked to the tallest project's info
+  at the current width, so it never changes size and never clips text.
 - Flight Log (`#experiences`, `experience-log.js`): the original Experience
   Log is the first thing out the window. While it is pinned, scrolling glides
   the plane along the route from stop to stop (compact layout in `ife.css`;
@@ -149,10 +164,10 @@ be deleted.
 
 ### Two modes
 
-- **Cabin (default):** door → aisle → seat 01A → window → Flight Log → back
+- **Cabin (default):** door → aisle → seat 2A → window → Flight Log → back
   inside. The Latest Trip, Projects and Passport sections are not in the page
   flow here; they open from the seat. At the end of the Flight Log, scrolling
-  on (or "Return to seat 01A") jumps to the open window and eases back into
+  on (or "Return to seat 2A") jumps to the open window and eases back into
   the seat.
 - **Fast track / recruiter mode (`?fast=1`):** the original homepage in its
   original order (boarding pass, Latest Trip, In-Flight Entertainment,
@@ -165,12 +180,10 @@ be deleted.
   attached armrests and floor shadows; row placards show only the row number
   and seat letters (04 AB / 04 CD … 01). NMI Dossier removed from the nav.
 
-### Seat 01A headliner + recruiter mode naming
+### Recruiter mode naming
 
-- The seat view's top strip is now a quiet inset cream headliner with two
-  recessed reading lights: no text or controls.
-- A status chip under the AVANIE AIR mark reads
-  "SEAT 01A · UX / PRODUCT DESIGNER & SOFTWARE ENGINEER".
+- The seat view has no ceiling bar, big title or status chip; "Seat 2A" only
+  appears on the boarding pass and in small print.
 - Contact is an outlined pill at the end of the header (opens the contact
   sheet in the cabin, scrolls to the footer in recruiter mode). On phones the
   header has two rows: links, then controls.

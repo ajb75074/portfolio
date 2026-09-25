@@ -197,6 +197,25 @@
 
   selectCard(0, { scrollIntoView: false });
 
+  // One constant size: the device is as tall as its longest project, so it never
+  // grows or shrinks with the text and nothing is cut off. Every project's info
+  // is measured at the current width and the tallest becomes the minimum height.
+  const info = screen.querySelector('.ife-info');
+  function lockInfoHeight() {
+    if (!info || !info.offsetWidth) return;              // hidden right now (panel closed): keep the last size
+    info.style.boxSizing = 'border-box';
+    info.style.minHeight = '';
+    const keep = currentIndex;
+    let tallest = 0;
+    cards.forEach((card) => { updateInfo(card); tallest = Math.max(tallest, info.getBoundingClientRect().height); });
+    updateInfo(cards[keep]);
+    info.style.minHeight = `${Math.ceil(tallest)}px`;
+  }
+  lockInfoHeight();
+  document.fonts?.ready.then(lockInfoHeight);
+  let lockRAF = 0;
+  addEventListener('resize', () => { cancelAnimationFrame(lockRAF); lockRAF = requestAnimationFrame(lockInfoHeight); });
+
   if (!reduceMotion) {
     const rect = screen.getBoundingClientRect();
     const alreadyVisible = rect.top < window.innerHeight * 0.65;
