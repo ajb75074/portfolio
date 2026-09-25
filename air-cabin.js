@@ -375,9 +375,45 @@ if (section) {
     render();
     if (current !== target) raf = requestAnimationFrame(tick);
   }
+  // ── Out of the window: drift down to the Experience Log ─────────────────
+  // When the window scene ends the log is a screen further down with nothing
+  // pointing to it. On a mouse or trackpad, glide there slowly. Scrolling up,
+  // a key press or a click hands control straight back.
+  const glideWrap = document.querySelector('[data-explog-glide]');
+  const pointerFine = matchMedia('(hover: hover) and (pointer: fine)');
+  let drifting = false, drifted = false, lastY = scrollY;
+  const stopDrift = () => { drifting = false; };
+  function driftToLog() {
+    if (drifting || drifted || returning || opened || fast() || !glideWrap || !pointerFine.matches) return;
+    drifted = true;
+    const header = document.querySelector('.site-header');
+    const gliding = glideWrap.classList.contains('is-gliding');
+    const to = glideWrap.getBoundingClientRect().top + scrollY - (gliding ? 0 : (header ? header.offsetHeight : 0));
+    const from = scrollY, reduce = matchMedia('(prefers-reduced-motion: reduce)').matches;
+    if (reduce || to - from < 40) { scrollTo({ top: to, behavior: 'instant' }); return; }
+    drifting = true;
+    const dur = Math.min(3200, 1800 + (to - from) * 0.9), t0 = performance.now();
+    const ease = x => (x < 0.5 ? 4 * x * x * x : 1 - Math.pow(-2 * x + 2, 3) / 2);
+    const step = now => {
+      if (!drifting) return;
+      const k = Math.min(1, (now - t0) / dur);
+      scrollTo({ top: from + (to - from) * ease(k), behavior: 'instant' });
+      if (k < 1) requestAnimationFrame(step); else drifting = false;
+    };
+    requestAnimationFrame(step);
+  }
+  // Wheel momentum right after the window would cancel the drift, so only an
+  // upward scroll counts as "I want control back".
+  addEventListener('wheel', e => { if (drifting) { if (e.deltaY < 0) stopDrift(); else e.preventDefault(); } }, { passive: false });
+  addEventListener('keydown', stopDrift);
+  addEventListener('pointerdown', stopDrift);
+
   function onScroll() {
     if (fast()) return;
     target = timeAt();
+    const down = scrollY > lastY; lastY = scrollY;
+    if (target < T.end - 6) drifted = false;
+    else if (down && target >= T.end - 2.5) driftToLog();
     if (!boarded && target >= T.seat + 3) { board(); target = timeAt(); current = Math.max(current, T.seat); }
     if (!raf) raf = requestAnimationFrame(tick);
   }

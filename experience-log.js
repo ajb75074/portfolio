@@ -31,7 +31,7 @@
   fillPath.style.strokeDasharray = String(pathLength);
 
   const VIEW_W = 1000;
-  const VIEW_H = 160;
+  const VIEW_H = 200;
 
   const points = stops.map((_, i) => {
     const t = total === 1 ? 0 : i / (total - 1);
@@ -84,19 +84,20 @@
       `<path class="geo-hill" d="M${x - 14} ${y} L${x - 5} ${y - 12} L${x + 2} ${y - 4} L${x + 8} ${y - 15} L${x + 17} ${y} Z"/>` +
       `<path class="geo-snow" d="M${x + 5.6} ${y - 11} L${x + 8} ${y - 15} L${x + 10.4} ${y - 11} Z"/>`;
     const wave = (x, y) => `<path class="geo-wave" d="M${x} ${y} q3 -3 6 0 t6 0"/>`;
-    let out = '<rect class="geo-sea" x="0" y="0" width="1000" height="160" rx="18"/>';
+    // Everything is clipped to the sea so no island can hang over the card.
+    let out = '<clipPath id="explog-sea-clip"><rect x="0" y="0" width="1000" height="200" rx="18"/></clipPath><rect class="geo-sea" x="0" y="0" width="1000" height="200" rx="18"/><g clip-path="url(#explog-sea-clip)">';
     // Faint latitude lines.
-    for (const y of [32, 80, 128]) out += `<path class="geo-lat" d="M0 ${y} H1000"/>`;
+    for (const y of [40, 100, 160]) out += `<path class="geo-lat" d="M0 ${y} H1000"/>`;
     // Open-water waves, kept away from the route and stops.
     for (let i = 0; i < 26; i++) {
-      const x = 30 + rand() * 940, y = 12 + rand() * 136;
+      const x = 30 + rand() * 940, y = 14 + rand() * 172;
       const near = pts.some(p => Math.hypot(p.x - x, (p.y - y) * 2.2) < 70);
       if (!near) out += wave(x, y);
     }
     // Islets, hills and palms between stops (alternating sides of the route).
     for (let i = 0; i < pts.length - 1; i++) {
       const a = pts[i], b = pts[i + 1], mx = (a.x + b.x) / 2, my = (a.y + b.y) / 2;
-      const side = i % 2 ? -1 : 1, y = Math.min(146, Math.max(18, my + side * 34));
+      const side = i % 2 ? -1 : 1, y = Math.min(172, Math.max(30, my + side * 34));
       const kind = i % 3;
       if (kind === 0) out += island(mx, y, 14, 6) + palm(mx + 2, y - 2);
       else if (kind === 1) out += island(mx, y, 22, 7) + hills(mx - 2, y + 2);
@@ -105,7 +106,7 @@
     // One island per stop (the stop marker sits on it).
     pts.forEach((p, i) => { out += island(p.x, p.y, 30 + (i % 3) * 4, 11 + (i % 2) * 2); });
     // Compass rose.
-    out += '<g class="geo-compass" transform="translate(40 28)"><circle r="12"/><path d="M0 -15 L3 0 L0 15 L-3 0 Z"/><path class="geo-compass-ew" d="M-15 0 L0 -3 L15 0 L0 3 Z"/><text y="-18">N</text></g>';
+    out += '<g class="geo-compass" transform="translate(44 34)"><circle r="12"/><path d="M0 -15 L3 0 L0 15 L-3 0 Z"/><path class="geo-compass-ew" d="M-15 0 L0 -3 L15 0 L0 3 Z"/><text y="-18">N</text></g></g>';
     const g = document.createElementNS('http://www.w3.org/2000/svg', 'g');
     g.setAttribute('class', 'explog-geo');
     g.innerHTML = out;
@@ -180,9 +181,30 @@
     if (closingEl) closingEl.hidden = d.closing !== 'true';
   }
 
+  // Swap the slide's content. The old slide leaves the way the finger moved;
+  // the new one enters from the opposite side.
+  function swapSlide(index, dir, wait) {
+    slide.classList.remove('to-next', 'to-prev');
+    if (dir) slide.classList.add(dir > 0 ? 'to-next' : 'to-prev');
+    slide.classList.add('is-changing');
+    window.setTimeout(() => {
+      renderSlide(index);
+      if (dir) {
+        // Park the new slide on the far side without animating, then let it settle.
+        slide.classList.add('is-dragging');
+        slide.classList.remove('to-next', 'to-prev');
+        slide.classList.add(dir > 0 ? 'to-prev' : 'to-next');
+        slide.offsetHeight;   // eslint-disable-line no-unused-expressions
+        slide.classList.remove('is-dragging');
+      }
+      requestAnimationFrame(() => slide.classList.remove('is-changing'));
+    }, wait);
+  }
+
   function selectStop(index, { animate = true, focusStop = false } = {}) {
     const clamped = Math.max(0, Math.min(total - 1, index));
     const changed = clamped !== currentIndex;
+    const dir = clamped > currentIndex ? 1 : -1;
     currentIndex = clamped;
 
     updateRoute(clamped);
@@ -190,17 +212,21 @@
     updateArrows(clamped);
 
     if (animate && changed && !reduceMotion) {
-      slide.classList.add('is-changing');
-      window.setTimeout(() => {
-        renderSlide(clamped);
-        requestAnimationFrame(() => slide.classList.remove('is-changing'));
-      }, 260);
+      swapSlide(clamped, dir, 200);
     } else {
       renderSlide(clamped);
-      slide.classList.remove('is-changing');
+      slide.classList.remove('is-changing', 'to-next', 'to-prev');
     }
 
     if (focusStop) stops[clamped].focus();
+  }
+
+  // One entry point for "go to stop i": while the log is pinned, scrolling is
+  // the navigation, so fly there by scrolling; otherwise switch directly.
+  function goTo(i) {
+    const to = Math.max(0, Math.min(total - 1, i));
+    if (to === currentIndex) return;
+    if (gliding) scrollToStop(to); else selectStop(to);
   }
 
   stops.forEach((btn, i) => {
@@ -214,43 +240,86 @@
     viewport.addEventListener('keydown', (e) => {
       if (e.key === 'ArrowRight') {
         e.preventDefault();
-        selectStop(currentIndex + 1);
+        goTo(currentIndex + 1);
       } else if (e.key === 'ArrowLeft') {
         e.preventDefault();
-        selectStop(currentIndex - 1);
+        goTo(currentIndex - 1);
       }
     });
 
-    let touchStartX = 0;
-    let touchStartY = 0;
-    let touching = false;
+    // Swipe: the card follows the finger, then commits on a long-enough or
+    // fast-enough flick. Vertical gestures are left to the page.
+    let startX = 0, startY = 0, startT = 0, axis = null, dragging = false;
+    const canSwipe = () => !slide.classList.contains('is-changing');
+    viewport.addEventListener('touchstart', (e) => {
+      if (e.touches.length !== 1 || !canSwipe()) return;
+      dragging = true; axis = null;
+      startX = e.touches[0].clientX; startY = e.touches[0].clientY; startT = performance.now();
+    }, { passive: true });
 
-    viewport.addEventListener(
-      'touchstart',
-      (e) => {
-        if (!e.touches.length) return;
-        touching = true;
-        touchStartX = e.touches[0].clientX;
-        touchStartY = e.touches[0].clientY;
-      },
-      { passive: true }
-    );
+    viewport.addEventListener('touchmove', (e) => {
+      if (!dragging) return;
+      const dx = e.touches[0].clientX - startX, dy = e.touches[0].clientY - startY;
+      if (!axis && Math.max(Math.abs(dx), Math.abs(dy)) > 8) axis = Math.abs(dx) > Math.abs(dy) ? 'x' : 'y';
+      if (axis !== 'x' || reduceMotion) return;
+      // Resist at either end of the route.
+      const edge = (dx > 0 && currentIndex === 0) || (dx < 0 && currentIndex === total - 1);
+      const shift = dx * (edge ? 0.18 : 0.5);
+      slide.classList.add('is-dragging');
+      slide.style.transform = `translateX(${shift}px)`;
+      slide.style.opacity = String(1 - Math.min(0.5, Math.abs(shift) / 260));
+    }, { passive: true });
 
-    viewport.addEventListener(
-      'touchend',
-      (e) => {
-        if (!touching) return;
-        touching = false;
-        const touch = e.changedTouches[0];
-        if (!touch) return;
-        const dx = touch.clientX - touchStartX;
-        const dy = touch.clientY - touchStartY;
-        if (Math.abs(dx) < 40 || Math.abs(dx) < Math.abs(dy)) return;
-        if (dx < 0) selectStop(currentIndex + 1);
-        else selectStop(currentIndex - 1);
-      },
-      { passive: true }
-    );
+    const endDrag = (e) => {
+      if (!dragging) return;
+      dragging = false;
+      const touch = e.changedTouches && e.changedTouches[0];
+      const dx = touch ? touch.clientX - startX : 0;
+      const fast = Math.abs(dx) / Math.max(1, performance.now() - startT) > 0.45;
+      const wasDragged = slide.classList.contains('is-dragging');
+      slide.classList.remove('is-dragging');
+      slide.style.transform = '';
+      slide.style.opacity = '';
+      if (axis !== 'x' || !(Math.abs(dx) > 56 || (fast && Math.abs(dx) > 24))) return;
+      const to = currentIndex + (dx < 0 ? 1 : -1);
+      if (to < 0 || to > total - 1) return;
+      if (gliding) { goTo(to); return; }
+      // Continue the motion the finger started instead of restarting from centre.
+      currentIndex = to;
+      updateRoute(to); updateProgress(to); updateArrows(to);
+      if (wasDragged && !reduceMotion) swapSlide(to, dx < 0 ? 1 : -1, 140);
+      else renderSlide(to);
+    };
+    viewport.addEventListener('touchend', endDrag, { passive: true });
+    viewport.addEventListener('touchcancel', endDrag, { passive: true });
+  }
+
+  // Drag a finger along the route strip to scrub between stops.
+  if (routeWrap) {
+    let scrub = false, sx = 0, sy = 0, sAxis = null;
+    const nearest = (x) => {
+      let best = currentIndex, dist = Infinity;
+      stops.forEach((btn, i) => {
+        const r = btn.getBoundingClientRect(), d = Math.abs(r.left + r.width / 2 - x);
+        if (d < dist) { dist = d; best = i; }
+      });
+      return best;
+    };
+    routeWrap.addEventListener('touchstart', (e) => {
+      if (e.touches.length !== 1) return;
+      scrub = true; sAxis = null; sx = e.touches[0].clientX; sy = e.touches[0].clientY;
+    }, { passive: true });
+    routeWrap.addEventListener('touchmove', (e) => {
+      if (!scrub) return;
+      const t = e.touches[0];
+      if (!sAxis && Math.max(Math.abs(t.clientX - sx), Math.abs(t.clientY - sy)) > 8) sAxis = Math.abs(t.clientX - sx) > Math.abs(t.clientY - sy) ? 'x' : 'y';
+      if (sAxis !== 'x') return;
+      const to = nearest(t.clientX);
+      if (to !== currentIndex) goTo(to);
+    }, { passive: true });
+    const endScrub = () => { scrub = false; };
+    routeWrap.addEventListener('touchend', endScrub, { passive: true });
+    routeWrap.addEventListener('touchcancel', endScrub, { passive: true });
   }
 
   // ── Glide: while the section is pinned in view, scrolling flies the plane
@@ -260,8 +329,10 @@
   const header = document.querySelector('.site-header');
   let gliding = false;
   const clamp01 = v => Math.min(1, Math.max(0, v));
+  // Phones scroll the page normally and swipe the card; the pinned glide is for desktop.
+  const phone = matchMedia('(max-width: 760px)');
   function glideFits() {
-    if (document.documentElement.dataset.fast === 'on') return false;
+    if (document.documentElement.dataset.fast === 'on' || phone.matches) return false;
     const room = innerHeight - (header ? header.offsetHeight : 0) - 8;
     // Check the tallest stop, not just the current one.
     let tallest = 0;

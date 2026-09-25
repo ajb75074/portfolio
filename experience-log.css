@@ -44,7 +44,7 @@
 /* ── Route header (compact) ── */
 .explog-route-header { position: relative; padding-top: 4px; }
 
-.explog-route { position: relative; width: 100%; aspect-ratio: 1000 / 160; max-height: 185px; margin: 0 auto; }
+.explog-route { position: relative; width: 100%; aspect-ratio: 1000 / 200; max-height: 230px; margin: 0 auto; }
 .explog-route-svg { position: absolute; inset: 0; width: 100%; height: 100%; overflow: visible; }
 .explog-route-line { fill: none; stroke-linecap: round; }
 .explog-route-line--bg { stroke: var(--explog-line); stroke-width: 3; }
@@ -239,15 +239,49 @@
 .explog-navbtn:disabled { opacity: 0.35; cursor: default; }
 .explog-navbtn[hidden] { display: none; }
 
+/* Swipe direction: the outgoing slide leaves the way the finger moves and the
+   next one enters from the opposite side. */
+.explog-slide.is-changing.to-next { transform: translateX(-28px); }
+.explog-slide.is-changing.to-prev { transform: translateX(28px); }
+.explog-slide.is-dragging { transition: none; }
+.explog-swipe-hint { display: none; margin: 0; flex: 1; text-align: center; font-size: 11px; font-weight: 600; letter-spacing: 0.04em; color: var(--explog-cocoa-soft); }
+
 @media (max-width: 760px) {
   .explog-section { padding: 64px 16px 90px; }
-  .explog-dashboard { padding: 18px 16px 20px; border-radius: 20px; }
+  .explog-dashboard { padding: 16px 14px 14px; border-radius: 20px; }
+
+  /* Route: a touch-sized strip you can tap or drag along. */
+  .explog-route-header { padding-top: 22px; touch-action: pan-y; }
+  .explog-progress-text { top: 0; font-size: 10px; }
+  .explog-stop { width: 34px; height: 52px; }
+  .explog-stop-dot { width: 10px; height: 10px; }
   .explog-stop-label { display: none; }
-  .explog-stop.is-active .explog-stop-label { display: block; font-size: 10px; }
-  .explog-progress-text { font-size: 10px; }
-  .explog-slide { grid-template-columns: 1fr; }
-  .explog-frame { max-width: 200px; margin: 0 auto; }
-  .explog-nav-controls { justify-content: space-between; }
+  /* Only the active stop is named, always above the strip so it stays inside it. */
+  .explog-stop.is-active .explog-stop-label { display: block; top: auto; bottom: calc(50% + 10px); font-size: 10px; }
+  .explog-plane { width: 20px; height: 20px; }
+  .explog-divider { margin-top: 6px; }
+  .explog-detail { margin-top: 16px; }
+
+  /* Compact card: a small logo chip beside the heading, story underneath. */
+  .explog-slide { grid-template-columns: 56px 1fr; column-gap: 14px; row-gap: 0; align-items: start; }
+  .explog-content { display: contents; }
+  .explog-frame { grid-row: 1 / span 4; width: 56px; max-width: none; margin: 0; border-radius: 14px; padding: 9px; }
+  .explog-cat, .explog-title, .explog-role, .explog-meta { grid-column: 2; }
+  .explog-desc, .explog-tags, .explog-closing { grid-column: 1 / -1; }
+  .explog-cat { font-size: 10px; letter-spacing: 0.1em; margin-bottom: 4px; }
+  .explog-title { font-size: 19px; margin-bottom: 2px; }
+  .explog-role { font-size: 13px; line-height: 1.3; }
+  .explog-meta { margin: 4px 0 12px; padding-bottom: 0; border-bottom: 0; font-size: 12px; }
+  .explog-slide::after { content: none; }
+  .explog-desc { font-size: 14px; line-height: 1.6; margin-bottom: 14px; padding-top: 12px; border-top: 1px solid var(--explog-line); }
+  .explog-tags { gap: 6px; }
+  .explog-tags li { font-size: 10.5px; padding: 4px 9px; }
+
+  .explog-nav-controls { align-items: center; justify-content: flex-end; gap: 10px; margin-top: 16px; padding-top: 12px; }
+  /* Swipe hint on the left, round 44px arrows grouped bottom right. */
+  .explog-swipe-hint { display: block; order: -1; text-align: left; }
+  .explog-navbtn { width: 44px; height: 44px; padding: 0; justify-content: center; gap: 0; font-size: 0; }
+  .explog-navbtn svg { width: 16px; height: 16px; }
 }
 
 @media (prefers-reduced-motion: reduce) {

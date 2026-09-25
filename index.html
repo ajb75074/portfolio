@@ -16,16 +16,20 @@
         if (mode !== 'day' && mode !== 'night') { var h = new Date().getHours(); mode = h >= 6 && h < 19 ? 'day' : 'night'; }
         document.documentElement.dataset.sky = mode;
       })();
-      // Fast track (recruiter mode): skip the boarding walk. ?fast=1 turns it on
-      // for a shared link; reduced-motion visitors get it by default.
+      // Recruiter mode: always on for phones. On larger screens, ?fast=1 turns it
+      // on for a shared link; otherwise the visitor's saved choice, else
+      // reduced-motion visitors get it by default.
       (function () {
         var fast = null;
-        try {
-          var q = new URLSearchParams(location.search).get('fast');
-          if (q === '1' || q === '0') localStorage.setItem('avanie-air-fast', q);
-          fast = localStorage.getItem('avanie-air-fast');
-        } catch (e) {}
-        if (fast === null) fast = matchMedia('(prefers-reduced-motion: reduce)').matches ? '1' : '0';
+        if (matchMedia('(max-width: 760px)').matches) fast = '1';
+        else {
+          try {
+            var q = new URLSearchParams(location.search).get('fast');
+            if (q === '1' || q === '0') localStorage.setItem('avanie-air-fast', q);
+            fast = localStorage.getItem('avanie-air-fast');
+          } catch (e) {}
+          if (fast === null) fast = matchMedia('(prefers-reduced-motion: reduce)').matches ? '1' : '0';
+        }
         document.documentElement.dataset.fast = fast === '1' ? 'on' : 'off';
       })();
     </script>
@@ -42,6 +46,7 @@
     <link rel="stylesheet" href="experience-log.css" />
     <link rel="stylesheet" href="ife.css" />
     <link rel="stylesheet" href="air-cabin.css" />
+    <link rel="stylesheet" href="clean.css" />
     <script type="importmap">{"imports":{"three":"./vendor/three/three.module.js","three/addons/":"./vendor/three/addons/"}}</script>
     <link rel="icon" type="image/png" href="assets/laptop.png" />
   </head>
@@ -120,38 +125,47 @@
     <header class="site-header" role="banner">
       <nav class="nav" aria-label="Main Navigation">
         <a href="index.html" class="brand" aria-label="Portfolio Home">
-          <img src="assets/laptop.png" alt="Avanie logo" class="brand-logo" />
+          <img src="assets/laptop.png" alt="" class="brand-logo">
         </a>
-        <ul class="nav-links">
-          <li><a href="#projects">Projects</a></li>
-          <li><a href="#experiences" data-no-panel>Experience</a></li>
-          <li><a href="#about" data-panel-title="About · Passport">About</a></li>
-          <li><a href="assets/Baptiste_Avanie_Resume.pdf" target="_blank" rel="noopener noreferrer">Resume</a></li>
-          <li class="nav-break" aria-hidden="true"></li>
-          <li class="nav-fast">
-            <button class="fast-toggle" type="button" data-fast-toggle aria-pressed="false" title="Skip the boarding walk">Recruiter mode</button>
-          </li>
-          <li class="nav-sky">
-            <button class="sky-toggle" type="button" data-sky-toggle aria-label="Switch to night sky" title="Switch to night sky">
-              <svg viewBox="0 0 24 24" width="18" height="18" aria-hidden="true" focusable="false">
-                <g class="sky-icon-sun"><circle cx="12" cy="12" r="4" /><path d="M12 2.5v2.2M12 19.3v2.2M2.5 12h2.2M19.3 12h2.2M5.3 5.3l1.6 1.6M17.1 17.1l1.6 1.6M5.3 18.7l1.6-1.6M17.1 6.9l1.6-1.6" /></g>
-                <path class="sky-icon-moon" d="M19.5 14.6A8 8 0 0 1 9.4 4.5a8 8 0 1 0 10.1 10.1z" />
-              </svg>
-            </button>
-          </li>
-          <li class="nav-sound">
-            <button class="cabin-sound" type="button" data-cabin-sound aria-pressed="false" aria-label="Cabin sound" title="Play cabin sound">
-              <svg viewBox="0 0 24 24" width="18" height="18" aria-hidden="true" focusable="false">
-                <path class="cabin-sound-speaker" d="M4 9.5h3.2L12 5.5v13l-4.8-4H4z" />
-                <path class="cabin-sound-waves" d="M15.5 9a4.2 4.2 0 0 1 0 6M18 6.5a7.8 7.8 0 0 1 0 11" />
-                <path class="cabin-sound-off" d="M16 9.5l5 5M21 9.5l-5 5" />
-              </svg>
-            </button>
-          </li>
-          <li class="nav-contact-item"><a class="nav-contact" href="#contact" data-no-panel data-panel="contact" data-panel-title="Contact">Contact</a></li>
-        </ul>
+        <div class="nav-menu" id="nav-menu" data-nav-menu>
+          <ul class="nav-links">
+            <li><a href="#projects">Projects</a></li>
+            <li><a href="#experiences" data-no-panel>Experience</a></li>
+            <li><a href="#about" data-panel-title="About · Passport">About</a></li>
+            <li><a href="assets/Baptiste_Avanie_Resume.pdf" target="_blank" rel="noopener noreferrer">Resume</a></li>
+          </ul>
+          <div class="nav-utils" data-nav-utils>
+            <a class="nav-contact" href="#contact" data-no-panel data-panel="contact" data-panel-title="Contact">Contact</a>
+          </div>
+        </div>
+        <button class="nav-toggle" type="button" data-nav-toggle aria-controls="nav-menu" aria-expanded="false" aria-label="Open menu">
+          <span></span><span></span>
+        </button>
       </nav>
     </header>
+
+    <!-- Cabin controls: desktop only (phones are always in recruiter mode;
+         clean.js moves the day/night button into the phone menu). -->
+    <div class="cabin-dock" role="group" aria-label="Cabin controls" data-cabin-dock>
+      <button class="fast-toggle" type="button" data-fast-toggle aria-pressed="false" title="Skip the boarding walk">
+        <span class="fast-toggle-track" aria-hidden="true"></span>
+        <span class="fast-toggle-label">Recruiter mode</span>
+      </button>
+      <span class="cabin-dock-sep" aria-hidden="true"></span>
+      <button class="sky-toggle nav-icon" type="button" data-sky-toggle aria-label="Switch to day sky" title="Switch to day sky">
+        <svg viewBox="0 0 24 24" width="18" height="18" aria-hidden="true" focusable="false">
+          <g class="sky-icon-sun"><circle cx="12" cy="12" r="4"></circle><path d="M12 2.5v2.2M12 19.3v2.2M2.5 12h2.2M19.3 12h2.2M5.3 5.3l1.6 1.6M17.1 17.1l1.6 1.6M5.3 18.7l1.6-1.6M17.1 6.9l1.6-1.6"></path></g>
+          <path class="sky-icon-moon" d="M19.5 14.6A8 8 0 0 1 9.4 4.5a8 8 0 1 0 10.1 10.1z"></path>
+        </svg>
+      </button>
+      <button class="cabin-sound nav-icon" type="button" data-cabin-sound aria-pressed="false" aria-label="Cabin sound" title="Play cabin sound">
+        <svg viewBox="0 0 24 24" width="18" height="18" aria-hidden="true" focusable="false">
+          <path class="cabin-sound-speaker" d="M4 9.5h3.2L12 5.5v13l-4.8-4H4z"></path>
+          <path class="cabin-sound-waves" d="M15.5 9a4.2 4.2 0 0 1 0 6M18 6.5a7.8 7.8 0 0 1 0 11"></path>
+          <path class="cabin-sound-off" d="M16 9.5l5 5M21 9.5l-5 5"></path>
+        </svg>
+      </button>
+    </div>
 
     <!-- Seat items open their content here, over the cabin (air-cabin.js). -->
     <div class="cabin-panel" data-cabin-panel role="dialog" aria-modal="true" aria-labelledby="cabin-panel-title" hidden>
@@ -269,9 +283,9 @@
         <div class="explog-dashboard" data-explog-dashboard>
         <div class="explog-route-header" data-explog-route-wrap>
           <div class="explog-route" data-explog-route>
-            <svg class="explog-route-svg" viewBox="0 0 1000 160" preserveAspectRatio="xMidYMid meet" focusable="false" aria-hidden="true">
-              <path class="explog-route-line explog-route-line--bg" d="M20 95 C 200 55, 320 55, 500 90 S 800 125, 980 75" />
-              <path class="explog-route-line explog-route-line--fill" data-explog-fill d="M20 95 C 200 55, 320 55, 500 90 S 800 125, 980 75" />
+            <svg class="explog-route-svg" viewBox="0 0 1000 200" preserveAspectRatio="xMidYMid meet" focusable="false" aria-hidden="true">
+              <path class="explog-route-line explog-route-line--bg" d="M100 117 C 260 77, 350 77, 500 112 S 760 147, 900 97" />
+              <path class="explog-route-line explog-route-line--fill" data-explog-fill d="M100 117 C 260 77, 350 77, 500 112 S 760 147, 900 97" />
             </svg>
             <div class="explog-plane" data-explog-plane aria-hidden="true">
               <svg viewBox="0 0 24 24" fill="currentColor" focusable="false">
@@ -499,6 +513,7 @@
               <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"><path d="M15 18l-6-6 6-6"/></svg>
               Previous stop
             </button>
+            <p class="explog-swipe-hint" aria-hidden="true">Swipe or drag the route</p>
             <button type="button" class="explog-navbtn explog-navbtn--next" data-explog-next aria-label="Next stop">
               Next stop
               <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"><path d="M9 6l6 6-6 6"/></svg>
@@ -830,5 +845,6 @@
     <script src="air-shooting-star.js" defer></script>
     <script src="air-clouds.js" defer></script>
     <script src="air-cabin-sound.js" defer></script>
+    <script src="clean.js" defer></script>
   </body>
 </html>

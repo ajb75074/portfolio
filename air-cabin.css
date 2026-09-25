@@ -23,7 +23,6 @@ html[data-sky='day'] .cabin {
   box-shadow: 0 0 0 200vmax #231d2b, inset 0 0 0 16px #e9e0cf, inset 0 0 0 18px #b9ab93, inset 0 0 50px 20px rgba(0, 0, 0, .35);
   pointer-events: none;
 }
-.cabin-door-frame::before { content: 'BOARDING DOOR 2L'; position: absolute; left: 50%; top: -34px; transform: translateX(-50%); font: 600 11px/1 Inter, sans-serif; letter-spacing: .3em; color: #cbbfa9; }
 .cabin-door .air-ticket { transform: translateY(calc(var(--out) * 70vh)) rotate(calc(var(--out) * 7deg)); opacity: calc(1 - var(--out) * 1.3); }
 
 /* ── Welcome announcement (one, while walking the aisle) ───────────────── */
